@@ -1,13 +1,15 @@
 import { useCallback, useMemo, useState } from 'react';
-import { NODES } from './data/nodes';
+import { NODES, NODE_BY_ID } from './data/nodes';
 import { CORRIDORS } from './data/corridors';
 import { PRESETS } from './data/presets';
 import { rankNodes } from './lib/scoring';
 import { nodeColor } from './lib/color';
 import type { CulinaryNode } from './types/flavor';
-import { WorldMap } from './components/WorldMap';
+import { WorldMap, type CorridorHighlight } from './components/WorldMap';
 import { NodeDrawer } from './components/NodeDrawer';
 import { PresetSwitcher } from './components/PresetSwitcher';
+import { CorridorPanel } from './components/CorridorPanel';
+import { segmentAt } from './lib/interpolate';
 
 export default function App() {
   const [presetId, setPresetId] = useState(PRESETS[0].id);
@@ -16,6 +18,13 @@ export default function App() {
   const scores = useMemo(() => new Map(ranked.map((r) => [r.node.id, r.score])), [ranked]);
   const [selected, setSelected] = useState<CulinaryNode | null>(null);
   const close = useCallback(() => setSelected(null), []);
+  const [corridorId, setCorridorId] = useState<string | null>(null);
+  const [pos, setPos] = useState(0);
+  const highlight = useMemo<CorridorHighlight | null>(() => {
+    const c = CORRIDORS.find((x) => x.id === corridorId);
+    if (!c) return null;
+    return { stopIds: c.stops.map((s) => s.nodeId), color: c.themeColor, segment: segmentAt(pos, c.stops.length) };
+  }, [corridorId, pos]);
 
   return (
     <div className="min-h-full px-4 py-5 md:p-8 max-w-6xl mx-auto">
@@ -27,9 +36,26 @@ export default function App() {
         <PresetSwitcher presets={PRESETS} value={presetId} onChange={setPresetId} />
       </header>
 
-      <WorldMap nodes={NODES} scores={scores} selectedId={selected?.id ?? null} onSelect={setSelected} />
+      <WorldMap
+        nodes={NODES}
+        scores={scores}
+        selectedId={selected?.id ?? null}
+        onSelect={setSelected}
+        highlight={highlight}
+      />
 
-      <div className="grid md:grid-cols-2 gap-6 mt-8">
+      <div className="mt-6">
+        <CorridorPanel
+          corridors={CORRIDORS}
+          nodeById={NODE_BY_ID}
+          corridorId={corridorId}
+          pos={pos}
+          onCorridorChange={setCorridorId}
+          onPosChange={setPos}
+        />
+      </div>
+
+      <div className="mt-8 max-w-xl">
         <section className="min-w-0">
           <h2 className="text-sm uppercase text-slate-500 mb-3">匹配度排行</h2>
           <ol className="space-y-1.5">
@@ -55,22 +81,6 @@ export default function App() {
           </ol>
         </section>
 
-        <section className="min-w-0">
-          <h2 className="text-sm uppercase text-slate-500 mb-3">渐变走廊</h2>
-          <div className="space-y-4">
-            {CORRIDORS.map((c) => (
-              <div key={c.id} className="rounded-xl bg-cardNight p-4">
-                <h3 className="font-semibold">{c.title.zh}</h3>
-                <p className="text-slate-400 text-sm">{c.subtitle}</p>
-                <div
-                  className="h-1 rounded my-3"
-                  style={{ background: `linear-gradient(90deg, ${c.gradientColors.join(',')})` }}
-                />
-                <p className="text-xs text-slate-500">{c.stops.map((s) => s.representativeDishMorph.dishName).join(' → ')}</p>
-              </div>
-            ))}
-          </div>
-        </section>
       </div>
 
       <NodeDrawer node={selected} score={selected ? scores.get(selected.id) ?? null : null} onClose={close} />
