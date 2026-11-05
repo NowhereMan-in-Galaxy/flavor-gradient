@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { flavorField } from './field';
+import { extractIsoContours, flavorField, oklabFlavorField } from './field';
 
-describe('flavorField', () => {
+describe('flavorField & oklabFlavorField & extractIsoContours', () => {
   const src = [
     { x: 0, y: 0, rgb: [255, 0, 0] as [number, number, number], strength: 1 },
     { x: 100, y: 0, rgb: [0, 0, 255] as [number, number, number], strength: 0 },
@@ -23,5 +23,20 @@ describe('flavorField', () => {
 
   it('无源时全透明', () => {
     expect(flavorField([], 2, 2, 1).every((v) => v === 0)).toBe(true);
+    const emptyOklab = oklabFlavorField([], 2, 2, 1);
+    expect(emptyOklab.pixels.every((v) => v === 0)).toBe(true);
+  });
+
+  it('oklabFlavorField 生成平滑标量场且 extractIsoContours 提取出匹配度等值线路径', () => {
+    const oklabSrc = [
+      { x: 20, y: 20, a: -0.08, b: 0.06, strength: 0.92 },
+      { x: 80, y: 80, a: 0.08, b: 0.07, strength: 0.25 },
+    ];
+    const { pixels, scoreGrid } = oklabFlavorField(oklabSrc, 20, 20, 5, 25);
+    expect(pixels.length).toBe(20 * 20 * 4);
+    expect(scoreGrid.length).toBe(20 * 20);
+    const contours = extractIsoContours(scoreGrid, 20, 20, 5, [0.3, 0.5, 0.7]);
+    expect(contours).toHaveLength(3);
+    expect(contours.some((c) => c.svgPath.includes('M') && c.svgPath.includes('L'))).toBe(true);
   });
 });
