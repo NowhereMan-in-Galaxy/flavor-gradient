@@ -53,3 +53,5 @@
 - Billing, J., & Sherman, P. W. (1998). Antimicrobial functions of spices: why some like it hot. *The Quarterly Review of Biology*, 73(1), 3–49.
 - 袁枚《随园食单》（“有味使之出，无味使之入”；本味与火候）
 - ISO 5492:2008 Sensory analysis — Vocabulary（质构术语）
+
+> Stage 8：`regionGroup` 新增 `china-central-north`（湘/徽/鲁/京/东北）与 `west-africa`；新节点 `primaryColor` 留空，由风味向量自动计算颜色。
