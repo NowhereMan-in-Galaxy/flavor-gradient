@@ -1,0 +1,233 @@
+import type { CulinaryNode } from '../types/flavor';
+
+/**
+ * 种子节点（Stage 0 基座）。
+ * 打分为编辑性估计（editorial estimate），不是实验测量值。
+ * 后续阶段请按 docs/DATA_GUIDE.md 的打分锚点校准，并在 sources 里补引用。
+ */
+export const NODES: CulinaryNode[] = [
+  {
+    id: 'cn-chaoshan',
+    name: { zh: '潮汕', en: 'Chaoshan', local: '潮汕' },
+    regionGroup: 'china-coastal',
+    coordinates: [116.68, 23.35],
+    climate: {
+      zone: 'subtropical',
+      elevationMeters: 10,
+      avgTempCelsius: 21.5,
+      climateReason: '濒海湿热、海产极鲜，烹饪以最短时间保住原鲜为第一目标',
+    },
+    flavorPrinciple: {
+      umamiOrBase: ['鱼露', '海鲜原汁', '普宁豆酱'],
+      acidOrSweet: ['梅膏酱', '冰糖'],
+      aromatics: ['芹菜', '南姜', '蒜头酥'],
+      summaryChord: '海产原鲜 + 蘸碟点题 + 清汤白灼',
+    },
+    cookingProfile: {
+      primaryThermalMedium: 'water-steam',
+      signatureMethods: ['白灼', '打冷', '生腌', '牛肉火锅涮'],
+      methodWeights: {
+        steamingPoaching: 9,
+        stirFryWok: 5,
+        rawColdMarinate: 7,
+        charGrillRoast: 2,
+        slowBraiseStew: 5,
+        fermentPickle: 5,
+      },
+      philosophyNote: '食材不新鲜不做；味道交给蘸碟，锅里只负责把本味端上桌',
+    },
+    sensoryVector: {
+      naturalBenwei: 10,
+      wokHeiThermal: 4,
+      umamiFerment: 8,
+      brightAcid: 4,
+      freshHerbal: 5,
+      warmDrySpice: 1,
+      capsaicinHeat: 2,
+      lipidRichness: 3,
+      sweetHarmony: 5,
+      crispTexture: 9,
+    },
+    pairingLogic: 'contrast-Eastern',
+    visuals: { primaryColor: '#38BDF8', secondaryColor: '#E0F2FE', svgGlyphType: 'ocean-shell' },
+    travelerGuide: {
+      oneLineVibe: '吃的是海的时间差',
+      safeOrderDishes: [
+        { localName: '生腌虾蛄', zhName: '生腌虾蛄', cookingMethod: '酱油蒜辣冷腌', whyMatchOrWarn: '鲜甜+蒜辣，沿海胃本命' },
+      ],
+      cautionDishes: [
+        { localName: '卤鹅肝', zhName: '卤鹅肝', cookingMethod: '老卤慢浸', whyMatchOrWarn: '脂感很重，不爱浓腻的少点' },
+      ],
+      menuKeyTerms: [{ term: '白灼', meaning: '清水快烫后蘸料', vibe: 'safe' }],
+    },
+    neighborIds: ['cn-guangxi', 'vn-north'],
+  },
+  {
+    id: 'cn-guangxi',
+    name: { zh: '广西', en: 'Guangxi', local: '广西' },
+    regionGroup: 'china-southwest',
+    coordinates: [108.32, 22.82],
+    climate: {
+      zone: 'subtropical',
+      elevationMeters: 80,
+      avgTempCelsius: 21.7,
+      climateReason: '湿热多雨，发酵酸（酸笋、酸嘢）既开胃又耐储存',
+    },
+    flavorPrinciple: {
+      umamiOrBase: ['螺蛳汤', '酸笋', '豆豉'],
+      acidOrSweet: ['酸笋', '酸梅', '青柠'],
+      aromatics: ['紫苏', '香菜', '小米辣'],
+      summaryChord: '发酵酸 + 骨汤/螺汤 + 生鲜草本',
+    },
+    cookingProfile: {
+      primaryThermalMedium: 'water-steam',
+      signatureMethods: ['煮粉', '老友炒', '酸嘢腌渍', '白切'],
+      methodWeights: {
+        steamingPoaching: 7,
+        stirFryWok: 7,
+        rawColdMarinate: 6,
+        charGrillRoast: 3,
+        slowBraiseStew: 4,
+        fermentPickle: 9,
+      },
+      philosophyNote: '用发酵酸把湿热天的胃口唤醒',
+    },
+    sensoryVector: {
+      naturalBenwei: 6,
+      wokHeiThermal: 6,
+      umamiFerment: 8,
+      brightAcid: 8,
+      freshHerbal: 7,
+      warmDrySpice: 2,
+      capsaicinHeat: 6,
+      lipidRichness: 3,
+      sweetHarmony: 3,
+      crispTexture: 8,
+    },
+    pairingLogic: 'contrast-Eastern',
+    visuals: { primaryColor: '#84CC16', secondaryColor: '#ECFCCB', svgGlyphType: 'citrus-leaf' },
+    travelerGuide: {
+      oneLineVibe: '酸笋是这片土地的灵魂',
+      safeOrderDishes: [
+        { localName: '老友粉', zhName: '老友粉', cookingMethod: '猛火炒料后煮粉', whyMatchOrWarn: '酸辣带镬气' },
+      ],
+      cautionDishes: [
+        { localName: '螺蛳粉', zhName: '螺蛳粉', cookingMethod: '酸笋螺汤', whyMatchOrWarn: '酸笋气味冲，初次尝试慎重' },
+      ],
+      menuKeyTerms: [{ term: '酸嘢', meaning: '酸辣腌水果/蔬菜', vibe: 'safe' }],
+    },
+    neighborIds: ['cn-chaoshan', 'vn-north'],
+  },
+  {
+    id: 'vn-north',
+    name: { zh: '越南北部', en: 'Northern Vietnam', local: 'Miền Bắc' },
+    regionGroup: 'southeast-asia',
+    coordinates: [105.85, 21.03],
+    climate: {
+      zone: 'subtropical',
+      elevationMeters: 15,
+      avgTempCelsius: 23.6,
+      climateReason: '季风湿热，清汤+大量生菜草本平衡湿气',
+    },
+    flavorPrinciple: {
+      umamiOrBase: ['鱼露', '牛骨清汤'],
+      acidOrSweet: ['青柠', '米醋'],
+      aromatics: ['香菜', '薄荷', '刺芫荽', '烤姜葱'],
+      summaryChord: '鱼露 + 青柠 + 一大把生草本',
+    },
+    cookingProfile: {
+      primaryThermalMedium: 'water-steam',
+      signatureMethods: ['清汤煮粉', '炭烤', '生卷'],
+      methodWeights: {
+        steamingPoaching: 9,
+        stirFryWok: 4,
+        rawColdMarinate: 6,
+        charGrillRoast: 6,
+        slowBraiseStew: 3,
+        fermentPickle: 5,
+      },
+      philosophyNote: '汤要清，草本要生，酸咸要在桌上自己调',
+    },
+    sensoryVector: {
+      naturalBenwei: 8,
+      wokHeiThermal: 4,
+      umamiFerment: 8,
+      brightAcid: 7,
+      freshHerbal: 9,
+      warmDrySpice: 3,
+      capsaicinHeat: 3,
+      lipidRichness: 2,
+      sweetHarmony: 4,
+      crispTexture: 9,
+    },
+    pairingLogic: 'contrast-Eastern',
+    visuals: { primaryColor: '#22C55E', secondaryColor: '#DCFCE7', svgGlyphType: 'citrus-leaf' },
+    travelerGuide: {
+      oneLineVibe: '一碗清汤加一盘生菜叶',
+      safeOrderDishes: [
+        { localName: 'Bún chả', zhName: '烤肉米线', cookingMethod: '炭烤+酸甜鱼露汁', whyMatchOrWarn: '焦香+酸鲜+草本' },
+      ],
+      cautionDishes: [
+        { localName: 'Mắm tôm', zhName: '发酵虾酱', cookingMethod: '长期发酵', whyMatchOrWarn: '气味极强' },
+      ],
+      menuKeyTerms: [{ term: 'Nước mắm', meaning: '鱼露', vibe: 'safe' }],
+    },
+    neighborIds: ['cn-guangxi', 'cn-chaoshan'],
+  },
+  {
+    id: 'et-highland',
+    name: { zh: '埃塞俄比亚高原', en: 'Ethiopian Highlands', local: 'ኢትዮጵያ' },
+    regionGroup: 'east-africa',
+    coordinates: [38.74, 9.03],
+    climate: {
+      zone: 'temperate',
+      elevationMeters: 2355,
+      avgTempCelsius: 16,
+      climateReason: '高原农耕，苔麸发酵饼为主食，复合干香料与澄清黄油长时间慢炖',
+    },
+    flavorPrinciple: {
+      umamiOrBase: ['Niter kibbeh 香料黄油', '洋葱'],
+      acidOrSweet: ['Injera 发酵酸'],
+      aromatics: ['Berbere', '葫芦巴', '豆蔻'],
+      summaryChord: '香料黄油 + Berbere + 洋葱长炖',
+    },
+    cookingProfile: {
+      primaryThermalMedium: 'slow-fat-stew',
+      signatureMethods: ['Wot 慢炖', 'Injera 发酵', 'Tibs 煎炒'],
+      methodWeights: {
+        steamingPoaching: 1,
+        stirFryWok: 4,
+        rawColdMarinate: 3,
+        charGrillRoast: 2,
+        slowBraiseStew: 9,
+        fermentPickle: 7,
+      },
+      philosophyNote: '洋葱干炒到化，再让香料和油脂慢慢熬合',
+    },
+    sensoryVector: {
+      naturalBenwei: 2,
+      wokHeiThermal: 3,
+      umamiFerment: 5,
+      brightAcid: 5,
+      freshHerbal: 2,
+      warmDrySpice: 9,
+      capsaicinHeat: 7,
+      lipidRichness: 7,
+      sweetHarmony: 4,
+      crispTexture: 2,
+    },
+    pairingLogic: 'hybrid-bridge',
+    visuals: { primaryColor: '#B45309', secondaryColor: '#FDE68A', svgGlyphType: 'spice-mandala' },
+    travelerGuide: {
+      oneLineVibe: '用酸饼抓起香料的厚度',
+      safeOrderDishes: [
+        { localName: 'Tibs', zhName: '香料煎牛肉', cookingMethod: '热锅快煎', whyMatchOrWarn: '最接近“小炒”的一道' },
+      ],
+      cautionDishes: [
+        { localName: 'Doro wot', zhName: '香料炖鸡', cookingMethod: 'Berbere 长炖', whyMatchOrWarn: '干香料+糊状质地都很重' },
+      ],
+      menuKeyTerms: [{ term: 'Wot', meaning: '浓稠炖菜', vibe: 'caution' }],
+    },
+    neighborIds: [],
+  },
+];
