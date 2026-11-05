@@ -30,3 +30,10 @@ export function vectorToColor(v: SensoryVector10D): string {
 export function nodeColor(node: CulinaryNode): string {
   return node.visuals.primaryColor || vectorToColor(node.sensoryVector);
 }
+
+/** 两个 #RRGGBB 线性混色 */
+export function mixHex(a: string, b: string, t: number): string {
+  const parse = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const [pa, pb] = [parse(a), parse(b)];
+  return toHex(pa.map((x, i) => x + (pb[i] - x) * t) as RGB);
+}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { geoGraticule10, geoNaturalEarth1, geoPath } from 'd3-geo';
+import { geoGraticule10, geoInterpolate, geoNaturalEarth1, geoPath } from 'd3-geo';
 import { select } from 'd3-selection';
-import { zoom, zoomIdentity, type ZoomTransform } from 'd3-zoom';
+import { zoom, zoomIdentity, type ZoomBehavior, type ZoomTransform } from 'd3-zoom';
 import { feature, mesh } from 'topojson-client';
 import type { GeometryCollection, Topology } from 'topojson-specification';
 import world from 'world-atlas/countries-110m.json';
@@ -28,7 +28,15 @@ const BORDERS_D = pathGen(mesh(topo, topo.objects.countries, (a, b) => a !== b))
 
 export const project = (lngLat: [number, number]): [number, number] => projection(lngLat) ?? [0, 0];
 
+/** 走廊高亮：路径上的站点按顺序给出，cursor 为当前位置（区段 i + 区段内进度 t） */
+export interface CorridorHighlight {
+  stopIds: string[];
+  color: string;
+  segment: { i: number; t: number };
+}
+
 interface Props {
+  highlight?: CorridorHighlight | null;
   nodes: CulinaryNode[];
   scores: ReadonlyMap<string, number>;
   selectedId: string | null;
@@ -41,13 +49,14 @@ interface Hover {
   y: number;
 }
 
-export function WorldMap({ nodes, scores, selectedId, onSelect }: Props) {
+export function WorldMap({ nodes, scores, selectedId, onSelect, highlight }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [t, setT] = useState<ZoomTransform>(zoomIdentity);
   const [hover, setHover] = useState<Hover | null>(null);
   // 窄屏竖向：地图铺满高度（裁掉两侧），初始聚焦亚洲
   const [narrow] = useState(() => window.innerWidth < 640);
+  const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -59,6 +68,7 @@ export function WorldMap({ nodes, scores, selectedId, onSelect }: Props) {
         [W, H],
       ])
       .on('zoom', (e: { transform: ZoomTransform }) => setT(e.transform));
+    zoomRef.current = z;
     const sel = select(svg).call(z);
     if (narrow) {
       const [x, y] = project([100, 25]);
@@ -89,6 +99,40 @@ export function WorldMap({ nodes, scores, selectedId, onSelect }: Props) {
     }
     return out;
   }, [nodes]);
+
+  const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
+  const route = useMemo(() => {
+    if (!highlight) return null;
+    const coords = highlight.stopIds.map((id) => byId.get(id)?.coordinates).filter((c): c is [number, number] => !!c);
+    return {
+      ids: new Set(highlight.stopIds),
+      coords,
+      d: pathGen({ type: 'LineString', coordinates: coords }) ?? '',
+    };
+  }, [highlight, byId]);
+  // 选中走廊时缩放到路径范围（只在走廊切换时触发，拖滑块不会重置视角）
+  const routeKey = highlight?.stopIds.join(',') ?? '';
+  useEffect(() => {
+    const svg = svgRef.current;
+    const z = zoomRef.current;
+    if (!svg || !z || !routeKey) return;
+    const pts = routeKey.split(',').map((id) => points.get(id)).filter((p): p is [number, number] => !!p);
+    if (pts.length < 2) return;
+    const xs = pts.map((p) => p[0]);
+    const ys = pts.map((p) => p[1]);
+    const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+    // 窄屏 slice 模式下可见宽度只有 viewBox 的一部分
+    const visibleW = narrow ? (W * svg.clientWidth) / ((svg.clientHeight * W) / H) : W;
+    const k = Math.min(8, 0.6 * Math.min(visibleW / Math.max(x1 - x0, 1), H / Math.max(y1 - y0, 1)));
+    const [cx, cy] = [(x0 + x1) / 2, (y0 + y1) / 2];
+    select(svg).call(z.transform, zoomIdentity.translate(W / 2 - k * cx, H / 2 - k * cy).scale(k));
+  }, [routeKey, points, narrow]);
+
+  const cursor = useMemo(() => {
+    if (!highlight || !route || route.coords.length < 2) return null;
+    const { i, t } = highlight.segment;
+    return project(geoInterpolate(route.coords[i], route.coords[i + 1])(t) as [number, number]);
+  }, [highlight, route]);
 
   const onHover = (node: CulinaryNode | null, evt?: React.PointerEvent) => {
     const rect = wrapRef.current?.getBoundingClientRect();
@@ -141,9 +185,20 @@ export function WorldMap({ nodes, scores, selectedId, onSelect }: Props) {
           <path d={BORDERS_D} fill="none" stroke="#2A3550" strokeWidth={0.5 / t.k} />
           <g fill="none" strokeLinecap="round">
             {edges.map(({ id, d }) => (
-              <path key={id} d={d} stroke={`url(#edge-${id})`} strokeWidth={1.2 / t.k} strokeOpacity={0.55} />
+              <path key={id} d={d} stroke={`url(#edge-${id})`} strokeWidth={1.2 / t.k} strokeOpacity={route ? 0.12 : 0.55} />
             ))}
           </g>
+          {route && highlight && (
+            <path
+              d={route.d}
+              fill="none"
+              stroke={highlight.color}
+              strokeWidth={3 / t.k}
+              strokeOpacity={0.8}
+              strokeDasharray={`${6 / t.k} ${4 / t.k}`}
+              strokeLinecap="round"
+            />
+          )}
           {drawOrder.map((n) => {
             const [x, y] = points.get(n.id)!;
             return (
@@ -156,11 +211,18 @@ export function WorldMap({ nodes, scores, selectedId, onSelect }: Props) {
                 score={scores.get(n.id) ?? 0}
                 color={colors.get(n.id)!}
                 selected={n.id === selectedId}
+                dimmed={!!route && !route.ids.has(n.id)}
                 onHover={onHover}
                 onSelect={onSelect}
               />
             );
           })}
+          {cursor && highlight && (
+            <g transform={`translate(${cursor[0]},${cursor[1]})`} pointerEvents="none">
+              <circle r={10 / t.k} fill={highlight.color} opacity={0.35} filter="url(#blur)" />
+              <circle r={4.5 / t.k} fill="#fff" stroke={highlight.color} strokeWidth={2 / t.k} />
+            </g>
+          )}
         </g>
       </svg>
 
