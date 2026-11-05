@@ -43,6 +43,7 @@
   - `compound-sharing-Western` 西式同类香气叠加
   - `hybrid-bridge` 介于两者或明显融合
 - `travelerGuide.safeOrderDishes[].whyMatchOrWarn`：用**中国人熟悉的参照**解释，例如“像不放酱油的白切鸡”、“像加了青柠的潮汕鱼生”
+- `imageUrl` / `imageCredit`（菜品）：只允许 `upload.wikimedia.org` 或 `images.unsplash.com`；填了 `imageUrl` 就必须填 `imageCredit`（作者 + 许可证 + 来源）。没有图片时 UI 显示全尺寸风味纹章
 - `visuals.primaryColor`：可留空字符串 `''`，此时由 `lib/color.ts` 的 `vectorToColor` 自动计算（青绿＝本味/酸/草本，琥珀＝干香料/油脂，海蓝＝发酵鲜）；手填仅作覆盖
 
 ## 参考文献（可在 SOURCES.md 中引用）

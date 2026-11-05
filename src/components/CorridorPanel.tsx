@@ -2,6 +2,7 @@ import type { CulinaryNode, FlavorCorridor } from '../types/flavor';
 import { lerpVector, segmentAt } from '../lib/interpolate';
 import { mixHex, nodeColor } from '../lib/color';
 import { VectorBars } from './VectorBars';
+import { NodeCrest } from './FlavorCrest';
 
 interface Props {
   corridors: FlavorCorridor[];
@@ -125,7 +126,8 @@ function CorridorBody({
 
       <div className="grid md:grid-cols-2 gap-5 mt-4">
         <div key={nearest} className="animate-fade-in">
-          <div className="font-semibold">
+          <div className="font-semibold flex items-center gap-2">
+            {stopNode && <NodeCrest node={stopNode} size={40} />}
             {stop.representativeDishMorph.dishName}{' '}
             <span className="text-slate-500 text-sm font-normal">@ {stopNode?.name.zh}</span>
           </div>

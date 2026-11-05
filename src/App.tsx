@@ -1,17 +1,32 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { NODES, NODE_BY_ID } from './data/nodes';
 import { CORRIDORS } from './data/corridors';
 import { PRESETS } from './data/presets';
 import { rankNodes } from './lib/scoring';
-import { nodeColor } from './lib/color';
 import type { CulinaryNode } from './types/flavor';
 import { WorldMap, type CorridorHighlight } from './components/WorldMap';
 import { NodeDrawer } from './components/NodeDrawer';
 import { PresetSwitcher } from './components/PresetSwitcher';
 import { CorridorPanel } from './components/CorridorPanel';
+import { NodeCrest } from './components/FlavorCrest';
+import { CrestGallery } from './components/CrestGallery';
 import { segmentAt } from './lib/interpolate';
 
+function useHash() {
+  const [hash, setHash] = useState(() => window.location.hash);
+  useEffect(() => {
+    const on = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', on);
+    return () => window.removeEventListener('hashchange', on);
+  }, []);
+  return hash;
+}
+
 export default function App() {
+  return useHash() === '#crests' ? <CrestGallery /> : <AtlasPage />;
+}
+
+function AtlasPage() {
   const [presetId, setPresetId] = useState(PRESETS[0].id);
   const preset = PRESETS.find((p) => p.id === presetId) ?? PRESETS[0];
   const ranked = useMemo(() => rankNodes(NODES, preset), [preset]);
@@ -70,7 +85,9 @@ export default function App() {
                   <div className="flex justify-between items-center gap-2">
                     <span className="truncate">
                       <span className="text-slate-600 font-mono text-xs w-5 inline-block">{i + 1}</span>
-                      <span className="inline-block w-2.5 h-2.5 rounded-full mr-2" style={{ background: nodeColor(node) }} />
+                      <span className="inline-block align-middle mr-2">
+                        <NodeCrest node={node} size={28} />
+                      </span>
                       {node.name.zh} <span className="text-slate-500 text-sm">{node.name.en}</span>
                     </span>
                     <span className="font-mono">{score}%</span>

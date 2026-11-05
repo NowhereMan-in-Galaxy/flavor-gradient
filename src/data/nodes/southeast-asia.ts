@@ -59,7 +59,14 @@ export const SOUTHEAST_ASIA_NODES: CulinaryNode[] = [
       oneLineVibe: '一碗清汤加一盘生菜叶',
       safeOrderDishes: [
         { localName: 'Bún chả', zhName: '烤肉米线', cookingMethod: '炭烤+酸甜鱼露汁', whyMatchOrWarn: '焦香+酸鲜+草本' },
-        { localName: 'Phở bò', zhName: '牛肉河粉', cookingMethod: '长熬清汤', whyMatchOrWarn: '像加了香草和青柠的潮汕牛肉粿条' },
+        {
+          localName: 'Phở bò',
+          zhName: '牛肉河粉',
+          cookingMethod: '长熬清汤',
+          whyMatchOrWarn: '像加了香草和青柠的潮汕牛肉粿条',
+          imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pho-Beef-Noodles-2008.jpg/500px-Pho-Beef-Noodles-2008.jpg',
+          imageCredit: 'Kham Tran (www.khamtran.com), CC BY 3.0, via Wikimedia Commons',
+        },
         { localName: 'Chả cá Lã Vọng', zhName: '河内炸鱼', cookingMethod: '黄姜煎鱼+莳萝', whyMatchOrWarn: '鱼肉嫩，莳萝清香' },
       ],
       cautionDishes: [
