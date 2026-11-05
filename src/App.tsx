@@ -10,6 +10,7 @@ import { PresetSwitcher } from './components/PresetSwitcher';
 import { CorridorPanel } from './components/CorridorPanel';
 import { NodeCrest } from './components/FlavorCrest';
 import { CrestGallery } from './components/CrestGallery';
+import { MenuCompass } from './components/MenuCompass';
 import { segmentAt } from './lib/interpolate';
 
 function useHash() {
@@ -50,6 +51,10 @@ function AtlasPage() {
         </div>
         <PresetSwitcher presets={PRESETS} value={presetId} onChange={setPresetId} />
       </header>
+
+      <div className="mb-6">
+        <MenuCompass nodes={NODES} scores={scores} onShowOnMap={setSelected} />
+      </div>
 
       <WorldMap
         nodes={NODES}

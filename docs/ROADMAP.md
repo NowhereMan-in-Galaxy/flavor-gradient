@@ -151,10 +151,10 @@
 4. README 加上线地址、截图 GIF、如何贡献一个新节点。
 
 ### 验收标准
-- [ ] 搜 “Ceviche”、“秘鲁”、“Lima” 都能命中秘鲁沿海
-- [ ] 搜 “Wot” 命中埃塞俄比亚且显示为「慎点」
-- [ ] GitHub Pages 在线可访问，首页加载 < 3s（4G 模拟）
-- [ ] README 中有“贡献一个节点”的 5 步说明
+- [x] 搜 “Ceviche”、“秘鲁”、“Lima” 都能命中秘鲁沿海
+- [x] 搜 “Wot” 命中埃塞俄比亚且显示为「慎点」
+- [ ] GitHub Pages 在线可访问（需合并到 main 并在仓库 Settings → Pages 选择 “GitHub Actions”）；首页加载 < 3s（4G 模拟）✅ 本地 Lighthouse LCP 1.7s
+- [x] README 中有“贡献一个节点”的 5 步说明
 
 ---
 
