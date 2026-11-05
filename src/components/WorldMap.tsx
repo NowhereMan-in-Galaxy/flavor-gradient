@@ -8,6 +8,7 @@ import world from 'world-atlas/countries-110m.json';
 import type { CulinaryNode } from '../types/flavor';
 import { nodeTone } from '../lib/color';
 import { NodeDot, dotRadius } from './NodeDot';
+import { flavorField } from '../lib/field';
 
 const W = 960;
 const H = 500;
@@ -148,6 +149,31 @@ export function WorldMap({ nodes, scores, selectedId, onSelect, highlight }: Pro
     [nodes, scores],
   );
 
+  // 风味色场：颜色 = 各地风味谱系插值，亮度 = 插值后的匹配度；只画在陆地上
+  const fieldUrl = useMemo(() => {
+    const GW = W / 2;
+    const GH = H / 2;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext?.('2d');
+    if (!ctx) return '';
+    canvas.width = GW;
+    canvas.height = GH;
+    const hex = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)) as [number, number, number];
+    const px = flavorField(
+      nodes.map((n) => {
+        const [x, y] = points.get(n.id)!;
+        return { x, y, rgb: hex(colors.get(n.id)!), strength: (scores.get(n.id) ?? 0) / 100 };
+      }),
+      GW,
+      GH,
+      2,
+    );
+    const img = ctx.createImageData(GW, GH);
+    img.data.set(px);
+    ctx.putImageData(img, 0, 0);
+    return canvas.toDataURL();
+  }, [nodes, points, colors, scores]);
+
   // 标签：按匹配度贪心放置，与已放置的标签重叠则隐藏（随缩放重新计算）
   const labels = useMemo(() => {
     const boxes: number[][] = [];
@@ -155,7 +181,7 @@ export function WorldMap({ nodes, scores, selectedId, onSelect, highlight }: Pro
     const order = [...nodes].sort((a, b) => Number(b.id === selectedId) - Number(a.id === selectedId) || (scores.get(b.id) ?? 0) - (scores.get(a.id) ?? 0));
     for (const n of order) {
       const s = scores.get(n.id) ?? 0;
-      if (route ? !route.ids.has(n.id) : s < 50 && n.id !== selectedId) continue;
+      if (route ? !route.ids.has(n.id) : n.id !== selectedId) continue;
       const [px, py] = points.get(n.id)!;
       const off = (dotRadius(s) + 3) / t.k;
       const w = (n.name.zh.replace(/（.*）/, '').length * 11) / t.k;
@@ -178,6 +204,9 @@ export function WorldMap({ nodes, scores, selectedId, onSelect, highlight }: Pro
         aria-label="全球风味节点地图"
       >
         <defs>
+          <clipPath id="land-clip">
+            <path d={LAND_D} />
+          </clipPath>
           {edges.map(({ id, a, b }) => {
             const [x1, y1] = points.get(a.id)!;
             const [x2, y2] = points.get(b.id)!;
@@ -194,10 +223,13 @@ export function WorldMap({ nodes, scores, selectedId, onSelect, highlight }: Pro
           <path d={SPHERE_D} fill="#101216" stroke="#2A2B2E" strokeWidth={0.8 / t.k} />
           <path d={GRATICULE_D} fill="none" stroke="#24262A" strokeWidth={0.5 / t.k} strokeDasharray={`${1 / t.k} ${3 / t.k}`} />
           <path d={LAND_D} fill="#1B1D21" />
+          {fieldUrl && (
+            <image href={fieldUrl} x={0} y={0} width={W} height={H} preserveAspectRatio="none" clipPath="url(#land-clip)" style={{ transition: 'opacity 400ms' }} />
+          )}
           <path d={BORDERS_D} fill="none" stroke="#2C2E32" strokeWidth={0.4 / t.k} />
           <g fill="none" strokeLinecap="round">
             {edges.map(({ id, d }) => (
-              <path key={id} d={d} stroke={`url(#edge-${id})`} strokeWidth={0.8 / t.k} strokeOpacity={route ? 0.08 : 0.35} />
+              <path key={id} d={d} stroke={`url(#edge-${id})`} strokeWidth={0.6 / t.k} strokeOpacity={route ? 0.06 : 0.22} />
             ))}
           </g>
           {route && highlight && (

@@ -56,7 +56,7 @@ function AtlasPage() {
         <PresetSwitcher presets={PRESETS} value={presetId} onChange={setPresetId} />
       </header>
 
-      <Figure no={1} title="风味星图" note="颜色 = 风味谱系　大小 = 与你胃口的匹配度">
+      <Figure no={1} title="风味星图" note="色场 = 各地风味插值，越亮越合胃口">
         <WorldMap nodes={NODES} scores={scores} selectedId={selected?.id ?? null} onSelect={setSelected} highlight={highlight} />
       </Figure>
 

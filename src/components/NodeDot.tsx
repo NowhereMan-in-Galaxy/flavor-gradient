@@ -15,7 +15,7 @@ interface Props {
 }
 
 /** 匹配度 → 屏幕半径（px）：越匹配越大，低分收成细小圆点 */
-export const dotRadius = (score: number) => 2 + Math.pow(Math.max(score, 0) / 100, 2.2) * 9;
+export const dotRadius = (score: number) => 1.5 + Math.pow(Math.max(score, 0) / 100, 2.2) * 4;
 
 export function NodeDot({ node, x, y, score, color, k, selected, dimmed, onHover, onSelect }: Props) {
   const r = dotRadius(score) / k;
@@ -37,9 +37,8 @@ export function NodeDot({ node, x, y, score, color, k, selected, dimmed, onHover
       }}
     >
       <circle r={Math.max(r * 2.4, 10 / k)} fill="transparent" />
-      <circle r={r * 2.2} fill={color} opacity={0.08 + 0.12 * v} style={{ transition: 'r 600ms cubic-bezier(.2,.8,.2,1)' }} />
-      <circle r={r} fill={color} opacity={0.45 + 0.55 * v} style={{ transition: 'r 600ms cubic-bezier(.2,.8,.2,1)' }} />
-      {selected && <circle r={r + 5 / k} fill="none" stroke="#C8A96E" strokeWidth={1.2 / k} />}
+      <circle r={r} fill={color} stroke="#0D0F12" strokeWidth={0.6 / k} opacity={0.55 + 0.45 * v} style={{ transition: 'r 600ms cubic-bezier(.2,.8,.2,1)' }} />
+      {selected && <circle r={r + 4 / k} fill="none" stroke="#C8A96E" strokeWidth={1.2 / k} />}
     </g>
   );
 }
