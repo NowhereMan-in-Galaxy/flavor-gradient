@@ -48,7 +48,7 @@
 
 ---
 
-## Stage 2 — 走廊 ×3、口味预设 ×4、算法测试（约 35 分钟）
+## ✅ Stage 2 — 走廊 ×3、口味预设 ×4、算法测试（约 35 分钟）
 
 **分支**：`stage-2-corridors-presets`
 
@@ -66,10 +66,10 @@
 4. 加入 `npm test`，并让 `verify:stage` 包含 `npm test`；CI 也跑测试。
 
 ### 验收标准
-- [ ] `validate:data` 显示 3 条走廊 / ≥ 4 个预设
-- [ ] `npm test` 全绿，scoring 覆盖率 ≥ 90%
-- [ ] 切换到“川湘重辣”预设时，四川排第 1 或第 2（写进 sanityCheck）
-- [ ] 切换到“西北面食+烤肉”预设时，新疆/乌兹别克斯坦进前 3（写进 sanityCheck）
+- [x] `validate:data` 显示 3 条走廊 / ≥ 4 个预设
+- [x] `npm test` 全绿，scoring 覆盖率 ≥ 90%
+- [x] 切换到“川湘重辣”预设时，四川排第 1 或第 2（写进 sanityCheck）
+- [x] 切换到“西北面食+烤肉”预设时，新疆/乌兹别克斯坦进前 3（写进 sanityCheck）
 
 ---
 

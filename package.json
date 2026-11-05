@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "validate:data": "tsx scripts/validateData.ts",
     "sanity": "tsx scripts/sanityCheck.ts",
-    "verify:stage": "tsx scripts/validateData.ts && tsx scripts/sanityCheck.ts && tsc -b && vite build"
+    "verify:stage": "tsx scripts/validateData.ts && tsx scripts/sanityCheck.ts && vitest run --coverage && tsc -b && vite build",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",
@@ -24,11 +26,13 @@
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
+    "@vitest/coverage-v8": "^2.1.9",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
     "tsx": "^4.19.1",
     "typescript": "^5.6.3",
-    "vite": "^5.4.9"
+    "vite": "^5.4.9",
+    "vitest": "^2.1.9"
   }
 }
