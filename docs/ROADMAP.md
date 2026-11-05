@@ -73,7 +73,7 @@
 
 ---
 
-## Stage 3 — 风味地图（主界面）（约 60 分钟）
+## ✅ Stage 3 — 风味地图（主界面）（约 60 分钟）
 
 **分支**：`stage-3-flavor-map`
 
@@ -92,11 +92,11 @@
 7. 组件拆分：`components/WorldMap.tsx`、`components/NodeDot.tsx`、`components/NodeDrawer.tsx`、`components/PresetSwitcher.tsx`。
 
 ### 验收标准
-- [ ] 打开首页即看到世界地图 + ≥ 20 个发光节点
-- [ ] 切换预设后 300ms 内完成重绘，无报错
-- [ ] 390px 宽手机视图：地图可拖拽缩放，抽屉变为底部弹出
-- [ ] Lighthouse Performance ≥ 85（PR 中附截图）
-- [ ] 不依赖任何 API Key、离线（打包后）可用
+- [x] 打开首页即看到世界地图 + ≥ 20 个发光节点
+- [x] 切换预设后 300ms 内完成重绘，无报错
+- [x] 390px 宽手机视图：地图可拖拽缩放，抽屉变为底部弹出
+- [x] Lighthouse Performance ≥ 85（PR 中附截图）
+- [x] 不依赖任何 API Key、离线（打包后）可用
 
 ---
 

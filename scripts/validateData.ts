@@ -27,7 +27,8 @@ for (const n of NODES) {
   for (const [k, v] of Object.entries(n.cookingProfile.methodWeights)) {
     if (v < 0 || v > 10) err(`${n.id}: methodWeights.${k}=${v} 不在 0~10`);
   }
-  if (!/^#[0-9A-Fa-f]{6}$/.test(n.visuals.primaryColor)) err(`${n.id}: primaryColor 不是 #RRGGBB`);
+  if (n.visuals.primaryColor && !/^#[0-9A-Fa-f]{6}$/.test(n.visuals.primaryColor))
+    err(`${n.id}: primaryColor 需为 #RRGGBB 或留空（留空自动计算）`);
   if (n.travelerGuide.safeOrderDishes.length < 2) err(`${n.id}: 至少 2 道 safeOrderDishes`);
   if (n.travelerGuide.cautionDishes.length < 1) err(`${n.id}: 至少 1 道 cautionDishes`);
   if (n.travelerGuide.menuKeyTerms.length < 3) err(`${n.id}: 至少 3 个 menuKeyTerms`);
