@@ -1,0 +1,36 @@
+<title>FlavorGradient 三个方向</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* 布局：一列方向卡，每张是截图加一句定位，点进去是可交互原型 */
+  :root { --bg: #1c1b1f; --fg: #ece8e1; --dim: #a29d94; --line: rgba(236, 232, 225, .14); --accent: #e0a96d; color-scheme: dark;
+    --serif: 'Noto Serif SC', 'Songti SC', serif; --sans: 'Noto Sans SC', system-ui, sans-serif; }
+  body { background: var(--bg); color: var(--fg); font: 15px/1.7 var(--sans); }
+  .w { max-width: 1040px; margin: 0 auto; padding-block: 40px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1 { font: 600 28px/1.3 var(--serif); text-wrap: balance; }
+  .lead { color: var(--dim); max-width: 62ch; margin-top: 8px; }
+  .dirs { display: grid; gap: 36px; margin-top: 36px; }
+  a.card { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; color: inherit; text-decoration: none; border-top: 1px solid var(--line); padding-top: 22px; }
+  a.card img { width: 100%; border-radius: 6px; display: block; transition: transform .4s; }
+  a.card:hover img, a.card:focus-visible img { transform: translateY(-3px); }
+  a.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
+  h2 { font: 600 22px var(--serif); }
+  .card p { color: var(--dim); margin-top: 8px; min-width: 0; }
+  .go { color: var(--accent); margin-top: 12px; display: inline-block; }
+  @media (max-width: 700px) { a.card { grid-template-columns: 1fr; } }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600&family=Noto+Sans+SC:wght@400&display=swap">
+<div class="w">
+  <h1>FlavorGradient 视觉方向初稿</h1>
+  <p class="lead">三版用的是同一份真实数据：21 个地区，4 种胃口。点开每一版都能直接操作：切换胃口、点地图上的点、悬停看动效。</p>
+  <div class="dirs">
+    <a class="card" href="dir-1.html"><img src="shots/dir-1-desk.png" alt="方向一截图"><div><h2>一 · 浑天</h2>
+      <p>参照杉浦康平的宇宙图：靛墨底，配骨白细线和朱砂、旧金两色。地图画成星图，每个地区是一颗四芒星，相邻的风味用金线连成星宿。详情是一张「命盘」，十个风味维度在圆上展开。</p>
+      <p>动效：悬停时这个地区的星宿亮起来；点开后命盘的花瓣逐片展开。</p><span class="go">打开原型</span></div></a>
+    <a class="card" href="dir-2.html"><img src="shots/dir-2-desk.png" alt="方向二截图"><div><h2>二 · 琴徽</h2>
+      <p>古琴漆面：暖漆黑底，陆地用横向丝弦织出来，各地区是螺钿徽位。详情是十根弦，每根弦代表一个风味维度，徽位标出这一维的数值。</p>
+      <p>动效：悬停徽位，那一带的弦会被拨响；切换地区时，十根弦上的徽位一起滑到新位置，弦随之颤动。</p><span class="go">打开原型</span></div></a>
+    <a class="card" href="dir-3.html"><img src="shots/dir-3-desk.png" alt="方向三截图"><div><h2>三 · 蓝调时刻</h2>
+      <p>黄昏天幕：蓝调到暮粉的渐变，星星刚开始亮。切换胃口时天色跟着变；详情是一张浮在上面的浅色卡片，可读性最好，也最轻。</p>
+      <p>动效：星光呼吸，走廊画成流动的星轨，卡片内容依次浮入。</p><span class="go">打开原型</span></div></a>
+  </div>
+</div>

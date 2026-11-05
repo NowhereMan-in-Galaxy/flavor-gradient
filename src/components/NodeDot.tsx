@@ -14,17 +14,17 @@ interface Props {
   onSelect: (node: CulinaryNode) => void;
 }
 
-/** 匹配度 → 屏幕半径（px）：越匹配越大 */
-export const dotRadius = (score: number) => 3 + Math.pow(Math.max(score, 0) / 100, 2) * 11;
+/** 匹配度 → 屏幕半径（px）：越匹配越大，低分收成细小圆点 */
+export const dotRadius = (score: number) => 1.5 + Math.pow(Math.max(score, 0) / 100, 2.2) * 4;
 
 export function NodeDot({ node, x, y, score, color, k, selected, dimmed, onHover, onSelect }: Props) {
   const r = dotRadius(score) / k;
-  const brightness = 0.35 + 0.65 * (Math.max(score, 0) / 100);
+  const v = Math.max(score, 0) / 100;
   return (
     <g
       transform={`translate(${x},${y})`}
-      opacity={dimmed ? 0.25 : 1}
-      style={{ cursor: 'pointer', transition: 'opacity 200ms' }}
+      opacity={dimmed ? 0.2 : 1}
+      style={{ cursor: 'pointer', transition: 'opacity 300ms' }}
       onPointerEnter={(e) => onHover(node, e)}
       onPointerMove={(e) => onHover(node, e)}
       onPointerLeave={() => onHover(null)}
@@ -36,10 +36,9 @@ export function NodeDot({ node, x, y, score, color, k, selected, dimmed, onHover
         if (e.key === 'Enter' || e.key === ' ') onSelect(node);
       }}
     >
-      <circle r={r * 2.4} fill={`url(#glow-${node.id})`} opacity={brightness} filter="url(#blur)" />
-      <circle r={r} fill={color} opacity={brightness} />
-      <circle r={r * 0.4} fill="#fff" opacity={0.5 * brightness} />
-      {selected && <circle r={r * 1.7} fill="none" stroke="#fff" strokeWidth={1.5 / k} />}
+      <circle r={Math.max(r * 2.4, 10 / k)} fill="transparent" />
+      <circle r={r} fill={color} stroke="#0D0F12" strokeWidth={0.6 / k} opacity={0.55 + 0.45 * v} style={{ transition: 'r 600ms cubic-bezier(.2,.8,.2,1)' }} />
+      {selected && <circle r={r + 4 / k} fill="none" stroke="#C8A96E" strokeWidth={1.2 / k} />}
     </g>
   );
 }

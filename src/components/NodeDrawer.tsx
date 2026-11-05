@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { CulinaryNode, DishRecommendation } from '../types/flavor';
-import { nodeColor } from '../lib/color';
+import { nodeTone } from '../lib/color';
 import { VectorBars } from './VectorBars';
 import { DishCard } from './DishCard';
 import { NodeCrest } from './FlavorCrest';
@@ -46,7 +46,7 @@ export function NodeDrawer({ node, score, onClose }: Props) {
   }, [onClose]);
 
   if (!node) return null;
-  const color = nodeColor(node);
+  const color = nodeTone(node);
   const { travelerGuide: g, ingredientProfile: ing } = node;
 
   return (
@@ -59,12 +59,12 @@ export function NodeDrawer({ node, score, onClose }: Props) {
       <div className="sticky top-0 bg-cardNight/95 backdrop-blur px-5 pt-4 pb-3 border-b border-slate-800 flex items-start gap-3">
         <NodeCrest node={node} size={48} />
         <div className="flex-1 min-w-0">
-          <h2 className="text-lg font-semibold leading-tight">
+          <h2 className="font-serif text-lg leading-tight">
             {node.name.zh} <span className="text-slate-500 text-sm font-normal">{node.name.local}</span>
           </h2>
           <p className="text-slate-400 text-sm">{g.oneLineVibe}</p>
         </div>
-        {score !== null && <span className="font-mono text-emerald-300">{score}%</span>}
+        {score !== null && <span className="font-mono text-brass">{score}%</span>}
         <button onClick={onClose} aria-label="关闭" className="p-1 text-slate-400 hover:text-white">
           <X size={18} />
         </button>

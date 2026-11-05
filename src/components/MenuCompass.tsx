@@ -29,9 +29,9 @@ export function MenuCompass({ nodes, scores, onShowOnMap }: Props) {
   const active = results.find((r) => r.node.id === pickedId) ?? results[0];
 
   return (
-    <section className="rounded-xl bg-cardNight p-4" aria-label="点菜罗盘">
-      <h2 className="text-sm uppercase text-slate-500 mb-3">点菜罗盘</h2>
-      <label className="flex items-center gap-2 bg-slateNight border border-slate-700 rounded-lg px-3 py-2 focus-within:border-emerald-400">
+    <section className="border-t border-slate-800 pt-3" aria-label="点菜罗盘">
+      <h2 className="font-serif text-[15px] mb-3">点菜罗盘 <span className="text-xs text-slate-500 font-sans ml-2">在餐厅门口查：该点什么、别点什么</span></h2>
+      <label className="flex items-center gap-2 border-b border-slate-700 px-1 py-2 focus-within:border-brass">
         <Search size={16} className="text-slate-500 shrink-0" />
         <input
           type="search"
@@ -40,7 +40,7 @@ export function MenuCompass({ nodes, scores, onShowOnMap }: Props) {
             setQuery(e.target.value);
             setPickedId(null);
           }}
-          placeholder="搜国家、菜名或菜单上的词：秘鲁 / Ceviche / Wot / 抓饭"
+          placeholder="国家、菜名或菜单上的词"
           aria-label="搜索国家、菜系或菜单关键词"
           className="flex-1 min-w-0 bg-transparent outline-none text-slate-100 placeholder:text-slate-600"
         />
@@ -50,7 +50,7 @@ export function MenuCompass({ nodes, scores, onShowOnMap }: Props) {
         <div className="flex flex-wrap gap-2 mt-3 text-xs">
           <span className="text-slate-500">试试：</span>
           {EXAMPLES.map((e) => (
-            <button key={e} onClick={() => setQuery(e)} className="text-emerald-300 hover:underline">
+            <button key={e} onClick={() => setQuery(e)} className="text-slate-300 hover:text-brass">
               {e}
             </button>
           ))}
@@ -67,7 +67,7 @@ export function MenuCompass({ nodes, scores, onShowOnMap }: Props) {
                 onClick={() => setPickedId(r.node.id)}
                 aria-pressed={r.node.id === active?.node.id}
                 className={`text-sm rounded-full px-3 py-1 border ${
-                  r.node.id === active?.node.id ? 'border-emerald-400 text-white' : 'border-slate-700 text-slate-400'
+                  r.node.id === active?.node.id ? 'border-brass text-slate-50' : 'border-slate-800 text-slate-400'
                 }`}
               >
                 {r.node.name.zh}
@@ -103,13 +103,13 @@ function CompassResult({
       <div className="flex items-center gap-3">
         <NodeCrest node={node} size={48} />
         <div className="flex-1 min-w-0">
-          <div className="font-semibold">
+          <div className="font-serif">
             {node.name.zh} <span className="text-slate-500 text-sm font-normal">{node.name.local}</span>
-            {score !== null && <span className="font-mono text-emerald-300 text-sm ml-2">{score}%</span>}
+            {score !== null && <span className="font-mono text-brass text-sm ml-2">{score}%</span>}
           </div>
           <div className="text-sm text-slate-400">{g.oneLineVibe}</div>
         </div>
-        <button onClick={() => onShowOnMap(node)} className="text-xs text-emerald-300 hover:underline shrink-0">
+        <button onClick={() => onShowOnMap(node)} className="text-xs text-brass hover:underline shrink-0">
           详情 →
         </button>
       </div>
@@ -123,14 +123,14 @@ function CompassResult({
       </ul>
 
       {avoidHits.length > 0 && (
-        <p className="text-sm rounded-lg border border-amber-700 bg-amber-950/40 text-amber-100 px-3 py-2">
+        <p className="text-sm border-l-2 border-amber-500 text-amber-100 pl-3 py-1">
           ⚠️ 「{avoidHits[0].text}」在这里属于<strong>慎点</strong>，原因见下方。
         </p>
       )}
 
       {like && (
         <p className="text-sm">
-          它像你熟悉的 <strong className="text-emerald-300">{like.node.name.zh}</strong>
+          它像你熟悉的 <strong className="text-slate-50 font-serif">{like.node.name.zh}</strong>
           <span className="text-slate-500">（相似度 {like.similarity}%）</span>
         </p>
       )}
