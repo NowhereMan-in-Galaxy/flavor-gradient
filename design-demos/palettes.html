@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>配色对比</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500&family=Noto+Sans+SC:wght@400&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="data.js"></script>
+<style>
+  body { margin: 0; background: #2a2a2c; color: #ddd; font: 14px/1.6 'Noto Sans SC', sans-serif; padding: 24px 16px; }
+  .grid { display: grid; gap: 28px; max-width: 1100px; margin: 0 auto; }
+  h2 { font: 500 18px 'Noto Serif SC', serif; margin: 0 0 4px; }
+  p { margin: 0 0 10px; color: #aaa; max-width: 70ch; }
+  canvas { width: 100%; display: block; border-radius: 4px; }
+  .bar { display: flex; gap: 8px; margin-bottom: 10px; }
+  .bar button { background: #3a3a3d; color: #ddd; border: 0; padding: 6px 12px; border-radius: 99px; cursor: pointer; font: inherit; font-size: 13px; }
+  .bar button[aria-pressed=true] { background: #ddd; color: #222; }
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="bar" id="presets"></div>
+  <section><h2>A · 墨夜</h2><p>深墨底。颜色由风味空间位置决定（相似的菜系颜色相近），亮度跟匹配度走；细线是匹配度等值线。</p><canvas id="a"></canvas></section>
+  <section><h2>B · 灰白图谱</h2><p>冷灰白底，像科学期刊里的地图插图。颜色逻辑与 A 相同，墨色更深，等值线更清楚。</p><canvas id="b"></canvas></section>
+  <section><h2>C · 科学色谱</h2><p>深蓝灰底。色场只表示匹配度，用感知均匀的连续色谱（深蓝 → 青 → 暖黄）；风味谱系留给圆点颜色。读起来最像一张"适口度分布图"。</p><canvas id="c"></canvas></section>
+</div>
+<script>
+const D = window.FG;
+const GW = 600, GH = Math.round(600 * D.H / D.W), S = D.W / GW;
+// ---- OKLab ----
+const lin = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+const gam = (c) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
+function oklchToRgb(L, C, h) {
+  const a = C * Math.cos(h), b = C * Math.sin(h);
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3, m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3, s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  return [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s]
+    .map((x) => Math.round(255 * Math.min(1, Math.max(0, gam(x)))));
+}
+// 风味空间位置 → OKLCH 色相/彩度
+const pcs = Object.values(D.pca), R = Math.max(...pcs.map(([x, y]) => Math.hypot(x, y)));
+const flavorLab = (id) => { const [x, y] = D.pca[id]; return [Math.atan2(y, x) + 0.6, Math.min(1, Math.hypot(x, y) / R * 1.3)]; };
+// 感知均匀连续色谱（近似 batlow：深蓝 → 青 → 黄）
+const SEQ = [[0.30, 0.06, 4.4], [0.48, 0.09, 3.6], [0.62, 0.10, 2.6], [0.76, 0.12, 1.5], [0.88, 0.13, 1.4]];
+function seq(t) { t = Math.min(1, Math.max(0, t)) * (SEQ.length - 1); const i = Math.min(SEQ.length - 2, Math.floor(t)), f = t - i;
+  return oklchToRgb(...SEQ[i].map((v, k) => v + (SEQ[i + 1][k] - v) * f)); }
+
+const THEMES = {
+  a: { bg: '#121418', sphere: '#16181d', land: '#1d2025', border: 'rgba(255,255,255,.06)', L: 0.74, Cmax: 0.13, contour: 'rgba(240,236,228,.22)', dotStroke: '#121418', label: '#d9d4ca', mode: 'flavor' },
+  b: { bg: '#e9e9e6', sphere: '#f1f1ef', land: '#d9d9d4', border: 'rgba(0,0,0,.08)', L: 0.60, Cmax: 0.14, contour: 'rgba(30,30,35,.28)', dotStroke: '#f1f1ef', label: '#2b2b30', mode: 'flavor' },
+  c: { bg: '#1b2129', sphere: '#1f262f', land: '#28303a', border: 'rgba(255,255,255,.07)', L: 0.72, Cmax: 0.12, contour: 'rgba(255,255,255,.25)', dotStroke: '#1b2129', label: '#dfe4ea', mode: 'score' },
+};
+const land = new Path2D(D.land), sphere = new Path2D(D.sphere), grat = new Path2D(D.grat);
+let preset = D.presets[0].id;
+
+function render(id) {
+  const T = THEMES[id], cv = document.getElementById(id), dpr = 2;
+  cv.width = D.W * dpr; cv.height = D.H * dpr;
+  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+  ctx.fillStyle = T.bg; ctx.fillRect(0, 0, D.W, D.H);
+  ctx.fillStyle = T.sphere; ctx.fill(sphere);
+  ctx.strokeStyle = T.border; ctx.lineWidth = .5; ctx.stroke(grat);
+  ctx.fillStyle = T.land; ctx.fill(land);
+  const sc = D.scores[preset];
+  // ---- 色场（OKLab 空间中做高斯核加权） ----
+  const img = new ImageData(GW, GH), score = new Float64Array(GW * GH);
+  const src = D.nodes.map((n) => { const [h, c] = flavorLab(n.id); return { x: n.x, y: n.y, a: c * Math.cos(h), b: c * Math.sin(h), s: sc[n.id] / 100 }; });
+  const sig2 = 2 * 34 * 34;
+  for (let j = 0; j < GH; j++) for (let i = 0; i < GW; i++) {
+    const x = i * S, y = j * S; let w = 0, A = 0, B = 0, s = 0, wmax = 0;
+    for (const p of src) { const k = Math.exp(-((p.x - x) ** 2 + (p.y - y) ** 2) / sig2) + 1e-9; w += k; A += p.a * k; B += p.b * k; s += p.s * k; if (k > wmax) wmax = k; }
+    const sv = s / w, cover = Math.min(1, wmax * 1.25) ** 0.8, q = (j * GW + i) * 4; score[j * GW + i] = sv * cover;
+    let rgb, alpha;
+    if (T.mode === 'flavor') { const a = A / w, b = B / w; rgb = oklchToRgb(T.L * (0.82 + 0.18 * sv), Math.hypot(a, b) * T.Cmax, Math.atan2(b, a)); alpha = cover * (0.25 + 0.65 * sv); }
+    else { rgb = seq((sv - 0.4) / 0.5); alpha = cover * 0.9; }
+    img.data[q] = rgb[0]; img.data[q + 1] = rgb[1]; img.data[q + 2] = rgb[2]; img.data[q + 3] = 255 * alpha;
+  }
+  const off = new OffscreenCanvas(GW, GH); off.getContext('2d').putImageData(img, 0, 0);
+  ctx.save(); ctx.clip(land); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(off, 0, 0, D.W, D.H);
+  // ---- 等值线 ----
+  const cs = d3.contours().size([GW, GH]).thresholds([0.3, 0.45, 0.6, 0.72])(Array.from(score));
+  ctx.save(); ctx.scale(S, S); const gp = d3.geoPath(null, ctx);
+  cs.forEach((c, i) => { ctx.beginPath(); gp(c); ctx.strokeStyle = T.contour; ctx.lineWidth = (i === cs.length - 1 ? 1.1 : 0.6) / S; ctx.stroke(); });
+  ctx.restore(); ctx.restore();
+  ctx.strokeStyle = T.border; ctx.lineWidth = .4; ctx.stroke(land);
+  // ---- 圆点 ----
+  D.nodes.forEach((n) => { const v = sc[n.id] / 100, r = 1.6 + v ** 2.2 * 3.6, [h, c] = flavorLab(n.id);
+    const rgb = oklchToRgb(id === 'b' ? 0.5 : 0.8, c * 0.16, h);
+    ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, 7); ctx.fillStyle = `rgb(${rgb})`; ctx.fill(); ctx.lineWidth = .8; ctx.strokeStyle = T.dotStroke; ctx.stroke(); });
+  ctx.fillStyle = T.label; ctx.font = '12px "Noto Serif SC"';
+  const top = [...D.nodes].sort((a, b) => sc[b.id] - sc[a.id])[0]; ctx.fillText(top.name.zh, top.x + 7, top.y - 6);
+}
+const bar = document.getElementById('presets');
+D.presets.slice(0, 5).forEach((p, i) => { const b = document.createElement('button'); b.textContent = p.name; b.setAttribute('aria-pressed', i === 0);
+  b.onclick = () => { preset = p.id; bar.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b)); ['a', 'b', 'c'].forEach(render); }; bar.appendChild(b); });
+['a', 'b', 'c'].forEach(render);
+</script>
+</body>
+</html>
