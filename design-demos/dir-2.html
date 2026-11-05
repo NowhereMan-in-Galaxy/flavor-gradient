@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>方向二 · 琴徽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400&display=swap" rel="stylesheet" />
+<script src="data.js"></script>
+<style>
+  :root { --lacquer: #16100d; --lacquer2: #1f1612; --silk: #eadfca; --silk-dim: #9c8f7c; --line: rgba(234, 223, 202, .14); --vermilion: #b4492f; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--lacquer); color: var(--silk); font: 300 15px/1.8 'Noto Sans SC', sans-serif; }
+  body::before { content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .5; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .35 0 0 0 0 .25 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .page { max-width: 1280px; margin: 0 auto; padding: 0 48px 60px; position: relative; }
+  header { display: flex; align-items: center; padding: 30px 0 10px; gap: 24px; }
+  h1 { font: 300 22px 'Noto Serif SC', serif; letter-spacing: .6em; }
+  .presets { margin-left: auto; display: flex; gap: 2px; font-family: 'Noto Serif SC', serif; }
+  .presets button { background: none; border: 0; color: var(--silk-dim); font: inherit; font-size: 14px; padding: 10px 14px; cursor: pointer; border-radius: 99px; }
+  .presets button[aria-pressed=true] { color: var(--lacquer); background: var(--silk); }
+  .map svg { width: 100%; height: auto; display: block; }
+  .hui { cursor: pointer; }
+  .hui circle.p { transition: r .6s cubic-bezier(.2, .8, .2, 1); }
+  .tip { font: 400 13px 'Noto Serif SC', serif; fill: var(--silk); pointer-events: none; }
+  .body { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 56px; border-top: 1px solid var(--line); padding-top: 34px; }
+  .name h2 { font: 300 46px/1.15 'Noto Serif SC', serif; letter-spacing: .08em; }
+  .name .local { color: var(--silk-dim); font-size: 14px; margin-top: 4px; }
+  .name .score { margin-top: 26px; font: 300 64px/1 'Noto Serif SC', serif; }
+  .name .score small { font-size: 14px; color: var(--silk-dim); margin-left: 8px; }
+  .name p { color: var(--silk-dim); margin-top: 18px; font-size: 14px; }
+  .strings svg { width: 100%; height: auto; display: block; }
+  .dishes { grid-column: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; margin-top: 12px; }
+  .dishes h3 { font: 400 13px 'Noto Serif SC', serif; letter-spacing: .4em; color: var(--silk-dim); margin-bottom: 10px; }
+  .dishes h3.c { color: var(--vermilion); }
+  .dishes ul { padding: 0; }
+  .dishes li { list-style: none; padding: 10px 0; border-top: 1px solid var(--line); font-family: 'Noto Serif SC', serif; font-size: 16px; }
+  .dishes li span { display: block; font: 300 13px/1.6 'Noto Sans SC', sans-serif; color: var(--silk-dim); }
+  .hint { font-size: 12px; color: var(--silk-dim); letter-spacing: .1em; }
+  @media (max-width: 900px) {
+    .page { padding: 0 16px 40px; }
+    header { flex-wrap: wrap; gap: 8px; padding-top: 20px; }
+    h1 { letter-spacing: .3em; }
+    .presets { margin-left: 0; overflow-x: auto; max-width: 100%; }
+    .presets button { white-space: nowrap; }
+    .body { grid-template-columns: 1fr; gap: 18px; }
+    .name h2 { font-size: 34px; } .name .score { font-size: 44px; margin-top: 10px; }
+    .dishes { grid-column: 1; grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header><h1>琴徽食图</h1><nav class="presets" id="presets"></nav></header>
+  <section class="map"><svg id="map" role="img" aria-label="风味地图：陆地以丝弦织成，徽位为各地风味"></svg></section>
+  <p class="hint">轻触徽位，那根弦会被拨响</p>
+  <section class="body">
+    <div class="name" id="name"></div>
+    <div>
+      <div class="strings"><svg id="strings" viewBox="0 0 860 400"></svg></div>
+    </div>
+    <div class="dishes" id="dishes"></div>
+  </section>
+</div>
+<script>
+const D = window.FG, NS = 'http://www.w3.org/2000/svg';
+const el = (t, a = {}, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p && p.appendChild(e); return e; };
+const byId = Object.fromEntries(D.nodes.map((n) => [n.id, n]));
+let preset = D.presets[0].id, sel = 'cn-chaoshan';
+
+// ---- 地图：陆地 = 横向丝弦（只在陆地内可见） ----
+const map = document.getElementById('map'), H = 540, Y0 = 40;
+map.setAttribute('viewBox', `0 ${Y0} ${D.W} ${H}`);
+const defs = el('defs', {}, map);
+const clip = el('clipPath', { id: 'land' }, defs); el('path', { d: D.land }, clip);
+const pearl = el('radialGradient', { id: 'pearl', cx: '35%', cy: '35%' }, defs);
+[['0', '#fffaf0'], ['.45', '#e8dccb'], ['.75', '#b9c4cf'], ['1', '#c9a8a0']].forEach(([o, c]) => el('stop', { offset: o, 'stop-color': c }, pearl));
+const STEP = 6, strings = [];
+const gLand = el('g', { 'clip-path': 'url(#land)' }, map);
+for (let y = Y0; y < Y0 + H; y += STEP) strings.push({ y, e: el('path', { d: `M0 ${y}H${D.W}`, stroke: 'rgba(234,223,202,.38)', 'stroke-width': .7, fill: 'none' }, gLand) });
+const gHui = el('g', {}, map), tip = el('text', { class: 'tip' }, map);
+const huis = {};
+D.nodes.forEach((n) => {
+  const g = el('g', { class: 'hui', transform: `translate(${n.x} ${n.y})`, tabindex: 0, role: 'button', 'aria-label': n.name.zh }, gHui);
+  el('circle', { r: 16, fill: 'transparent' }, g);
+  const ring = el('circle', { r: 0, fill: 'none', stroke: '#b4492f', 'stroke-width': 1 }, g);
+  const p = el('circle', { class: 'p', r: 4, fill: 'url(#pearl)' }, g);
+  huis[n.id] = { p, ring };
+  g.addEventListener('mouseenter', () => { pluck(n.y, n.x); tip.textContent = n.name.zh; tip.setAttribute('x', n.x + 12); tip.setAttribute('y', n.y - 10); });
+  g.addEventListener('mouseleave', () => (tip.textContent = ''));
+  g.addEventListener('click', () => select(n.id)); g.addEventListener('keydown', (e) => e.key === 'Enter' && select(n.id));
+});
+// 拨弦：最近的几根弦按衰减正弦振动
+const active = new Map();
+function pluck(y, x) { strings.forEach((s) => { const d = Math.abs(s.y - y); if (d < STEP * 3) active.set(s, { x, t0: performance.now(), amp: 5 * (1 - d / (STEP * 3)) }); }); tick(); }
+let raf = 0;
+function tick() { cancelAnimationFrame(raf); raf = requestAnimationFrame(function f(now) {
+  active.forEach((a, s) => { const t = (now - a.t0) / 1000, amp = a.amp * Math.exp(-t * 2.4);
+    if (amp < .05) { s.e.setAttribute('d', `M0 ${s.y}H${D.W}`); active.delete(s); return; }
+    let d = `M0 ${s.y}`; for (let x = 0; x <= D.W; x += 12) { const env = Math.exp(-Math.pow((x - a.x) / 260, 2)); d += `L${x} ${s.y + Math.sin(x / 14 - t * 40) * amp * env}`; }
+    s.e.setAttribute('d', d); });
+  if (active.size) raf = requestAnimationFrame(f); }); }
+function paintHui() { const sc = D.scores[preset];
+  D.nodes.forEach((n) => { const v = sc[n.id] / 100; huis[n.id].p.setAttribute('r', 2.2 + v * v * 8); huis[n.id].p.setAttribute('opacity', .35 + v * .65);
+    huis[n.id].ring.setAttribute('r', n.id === sel ? 4 + v * v * 8 + 6 : 0); }); }
+
+// ---- 十弦：每一维一根弦，徽位 = 数值 ----
+const sv = document.getElementById('strings'), L = 120, R = 840, rowH = 38;
+const rows = D.keys.map((k, i) => { const y = 20 + i * rowH;
+  const t = el('text', { x: 0, y: y + 5, fill: '#9c8f7c', 'font-size': 13, 'font-family': 'Noto Serif SC' }, sv); t.textContent = D.labels[k];
+  for (let j = 0; j <= 10; j += 1) el('circle', { cx: L + (R - L) * j / 10, cy: y, r: j % 5 ? .8 : 1.6, fill: 'rgba(234,223,202,.3)' }, sv);
+  const line = el('path', { d: `M${L} ${y}H${R}`, stroke: 'rgba(234,223,202,.5)', 'stroke-width': .8, fill: 'none' }, sv);
+  const m = el('circle', { cy: y, r: 6.5, fill: 'url(#pearl2)' }, sv);
+  const val = el('text', { y: y - 12, fill: '#eadfca', 'font-size': 11, 'text-anchor': 'middle', 'font-family': 'Noto Sans SC' }, sv);
+  return { k, y, line, m, val, x: L }; });
+const d2 = el('defs', {}, sv), p2 = el('radialGradient', { id: 'pearl2', cx: '35%', cy: '35%' }, d2);
+[['0', '#fffaf0'], ['.5', '#e8dccb'], ['.8', '#b9c4cf'], ['1', '#c9a8a0']].forEach(([o, c]) => el('stop', { offset: o, 'stop-color': c }, p2));
+function vibrate(r, from, to) { const t0 = performance.now();
+  requestAnimationFrame(function f(now) { const t = (now - t0) / 1000, e = Math.min(1, t / .7), k = 1 - Math.pow(1 - e, 3), x = from + (to - from) * k; r.x = x;
+    r.m.setAttribute('cx', x); r.val.setAttribute('x', x);
+    const amp = 4 * Math.exp(-t * 3) * (Math.abs(to - from) > 1 ? 1 : .3);
+    let d = `M${L} ${r.y}`; for (let xx = L; xx <= R; xx += 10) { const w = xx < x ? (xx - L) / (x - L + .01) : (R - xx) / (R - x + .01); d += `L${xx} ${r.y + Math.sin(t * 50) * amp * Math.sin(Math.PI * Math.min(1, w) / 2)}`; }
+    r.line.setAttribute('d', d); if (t < 1.4) requestAnimationFrame(f); else r.line.setAttribute('d', `M${L} ${r.y}H${R}`); }); }
+
+function select(id) { sel = id; const n = byId[id], score = D.scores[preset][id];
+  document.getElementById('name').innerHTML = `<h2>${n.name.zh}</h2><div class="local">${n.name.local} · ${n.name.en}</div>
+    <div class="score">${score}<small>% 合你的胃口</small></div><p>${n.vibe}</p><p>${n.chord}</p>`;
+  rows.forEach((r) => { const to = L + (R - L) * n.v[r.k] / 10; r.val.textContent = n.v[r.k]; vibrate(r, r.x, to); });
+  document.getElementById('dishes').innerHTML = `<div><h3>闭眼点</h3><ul>${n.safe.map((d) => `<li>${d.zh}<span>${d.local} — ${d.why}</span></li>`).join('')}</ul></div>
+    <div><h3 class="c">慎点</h3><ul>${n.caution.map((d) => `<li>${d.zh}<span>${d.local} — ${d.why}</span></li>`).join('')}</ul></div>`;
+  paintHui(); }
+
+const nav = document.getElementById('presets');
+D.presets.forEach((p) => { const b = document.createElement('button'); b.textContent = p.name; b.onclick = () => { preset = p.id;
+  nav.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b)); select(sel); }; nav.appendChild(b); });
+nav.firstChild.setAttribute('aria-pressed', true);
+select(sel);
+</script>
+</body>
+</html>

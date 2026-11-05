@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>方向三 · 蓝调时刻</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+<script src="data.js"></script>
+<style>
+  :root { --top: #1b2747; --mid: #4a5b8c; --low: #c99a8f; --card: #f7f2ea; --ink: #1d2236; --ink-dim: #5d6178; --warm: #d9734e; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body { font: 15px/1.65 'Noto Sans SC', 'Schibsted Grotesk', sans-serif; color: #f4efe8; overflow-x: hidden;
+    background: linear-gradient(180deg, var(--top) 0%, var(--mid) 58%, var(--low) 100%); transition: background 1.2s; min-height: 100vh; }
+  .sky { position: relative; min-height: 100vh; display: flex; flex-direction: column; }
+  header { display: flex; align-items: center; gap: 18px; padding: 24px 40px; position: relative; z-index: 2; }
+  .logo { font: 600 19px 'Schibsted Grotesk', sans-serif; letter-spacing: -.01em; }
+  .logo span { font: 400 13px 'Noto Sans SC'; opacity: .7; margin-left: 10px; }
+  .presets { margin-left: auto; display: flex; gap: 6px; background: rgba(255, 255, 255, .08); padding: 4px; border-radius: 99px; }
+  .presets button { border: 0; background: none; color: rgba(244, 239, 232, .75); font: 500 13px 'Noto Sans SC'; padding: 9px 16px; border-radius: 99px; cursor: pointer; transition: all .3s; }
+  .presets button[aria-pressed=true] { background: #f7f2ea; color: var(--ink); }
+  .map { flex: 1; position: relative; }
+  .map svg { width: 100%; height: auto; display: block; }
+  .s { cursor: pointer; }
+  .s .core { transition: r .9s cubic-bezier(.2, .8, .2, 1), fill .9s; }
+  .s .halo { transition: r .9s cubic-bezier(.2, .8, .2, 1), opacity .9s; animation: tw 4s ease-in-out infinite; }
+  @keyframes tw { 50% { opacity: .25; } }
+  .name { font: 500 12px 'Noto Sans SC'; fill: rgba(255, 255, 255, .85); pointer-events: none; }
+  .trail { fill: none; stroke: rgba(255, 226, 196, .95); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 1 7; animation: flow 3s linear infinite; }
+  @keyframes flow { to { stroke-dashoffset: -32; } }
+  .card { position: absolute; right: 40px; bottom: 36px; width: 440px; background: var(--card); color: var(--ink); border-radius: 22px; padding: 26px 28px 22px;
+    box-shadow: 0 30px 80px rgba(20, 24, 50, .35); z-index: 3; }
+  .card .row { display: flex; gap: 18px; align-items: center; }
+  .card h2 { font: 700 24px/1.25 'Noto Sans SC'; }
+  .card .local { color: var(--ink-dim); font-size: 13px; }
+  .card .pct { margin-left: auto; text-align: right; font: 600 40px/1 'Schibsted Grotesk'; color: var(--ink); }
+  .card .pct small { display: block; font: 400 12px 'Noto Sans SC'; color: var(--ink-dim); margin-top: 4px; }
+  .card .vibe { color: var(--ink-dim); margin: 10px 0 14px; font-size: 14px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+  .tabs button { border: 1px solid #ddd3c4; background: none; border-radius: 99px; padding: 6px 14px; font: 500 13px 'Noto Sans SC'; color: var(--ink-dim); cursor: pointer; }
+  .tabs button[aria-pressed=true] { background: var(--ink); color: var(--card); border-color: var(--ink); }
+  .dish { display: grid; grid-template-columns: 54px 1fr; gap: 12px; padding: 10px 0; border-top: 1px solid #e7dfd2; align-items: center; animation: in .5s both; }
+  .dish:nth-child(2) { animation-delay: .06s; } .dish:nth-child(3) { animation-delay: .12s; } .dish:nth-child(4) { animation-delay: .18s; }
+  @keyframes in { from { opacity: 0; transform: translateY(6px); } }
+  .dish b { font-weight: 500; } .dish span { display: block; font-size: 13px; color: var(--ink-dim); line-height: 1.5; }
+  .flower { width: 54px; height: 54px; }
+  .story { position: absolute; left: 40px; bottom: 44px; max-width: 380px; z-index: 2; }
+  .story h1 { font: 700 40px/1.2 'Noto Sans SC'; letter-spacing: -.01em; }
+  .story p { opacity: .82; margin-top: 10px; }
+  @media (max-width: 900px) {
+    header { padding: 16px; flex-wrap: wrap; }
+    .presets { margin-left: 0; overflow-x: auto; max-width: 100%; }
+    .presets button { white-space: nowrap; }
+    .story { position: static; padding: 0 16px 8px; } .story h1 { font-size: 28px; }
+    .map svg { width: 180%; margin-left: -62%; }
+    .card { position: relative; right: auto; bottom: auto; width: auto; margin: -20px 12px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="sky">
+  <header>
+    <div class="logo">FlavorGradient<span>风味渐变星图</span></div>
+    <nav class="presets" id="presets"></nav>
+  </header>
+  <div class="map"><svg id="map" role="img" aria-label="风味星图"></svg></div>
+  <div class="story"><h1>天色随你的胃口变化</h1><p>星越亮越合口味。虚线星轨是一条跨国界的风味渐变：从潮汕一路到泰国东北。</p></div>
+  <div class="card" id="card"></div>
+</div>
+<script>
+const D = window.FG, NS = 'http://www.w3.org/2000/svg';
+const el = (t, a = {}, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p && p.appendChild(e); return e; };
+const byId = Object.fromEntries(D.nodes.map((n) => [n.id, n]));
+let preset = D.presets[0].id, sel = 'cn-chaoshan', tab = 'safe';
+const SKIES = { 'coastal-sea': ['#1b2747', '#4a5b8c', '#c99a8f'], 'sichuan-hunan-heat': ['#2a1d3a', '#7a4560', '#e0905f'], 'northwest-noodle-grill': ['#232a3a', '#6b6378', '#d6ad7f'], 'light-japanese': ['#1e3045', '#58809a', '#cdb9b0'] };
+
+const svg = document.getElementById('map');
+svg.setAttribute('viewBox', `0 60 ${D.W} 470`);
+const defs = el('defs', {}, svg);
+const glow = el('radialGradient', { id: 'glow' }, defs);
+[['0', 'rgba(255,240,220,.9)'], ['.4', 'rgba(255,220,190,.25)'], ['1', 'rgba(255,220,190,0)']].forEach(([o, c]) => el('stop', { offset: o, 'stop-color': c }, glow));
+el('path', { d: D.land, fill: 'rgba(20,28,60,.32)', stroke: 'rgba(255,255,255,.12)', 'stroke-width': .6 }, svg);
+// 背景小星
+for (let i = 0; i < 140; i++) { const x = (i * 97.3) % D.W, y = 60 + ((i * 53.7) % 300); el('circle', { cx: x, cy: y, r: (i % 3) * .3 + .3, fill: 'rgba(255,255,255,.35)' }, svg); }
+const c0 = D.corridors[0];
+const pts = c0.stops.map((id) => byId[id]);
+el('path', { class: 'trail', d: 'M' + pts.map((p) => `${p.x} ${p.y}`).join(' L') }, svg);
+
+const S = {};
+D.nodes.forEach((n) => {
+  const g = el('g', { class: 's', transform: `translate(${n.x} ${n.y})`, tabindex: 0, role: 'button', 'aria-label': n.name.zh }, svg);
+  const halo = el('circle', { class: 'halo', r: 0, fill: 'url(#glow)' }, g);
+  halo.style.animationDelay = `${(n.x % 40) / 10}s`;
+  const core = el('circle', { class: 'core', r: 2, fill: '#fff' }, g);
+  const t = el('text', { class: 'name', x: 8, y: -8 }, g); t.textContent = n.name.zh.replace(/（.*）/, '');
+  S[n.id] = { halo, core, t };
+  g.addEventListener('click', () => select(n.id)); g.addEventListener('keydown', (e) => e.key === 'Enter' && select(n.id));
+  g.addEventListener('mouseenter', () => (t.style.display = '')); g.addEventListener('mouseleave', () => paint());
+});
+
+function placeLabels(order, size, show) { const boxes = [];
+  order.forEach(({ n, t, dx, dy }) => { const w = t.textContent.length * size, b = [n.x + dx, n.y + dy - size, n.x + dx + w, n.y + dy];
+    const ok = show(n) && !boxes.some((o) => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1]);
+    t.style.display = ok ? '' : 'none'; if (ok) boxes.push(b); }); }
+function paint() { const sc = D.scores[preset];
+  D.nodes.forEach((n) => { const v = sc[n.id] / 100;
+    S[n.id].core.setAttribute('r', 1.2 + v * v * 4); S[n.id].halo.setAttribute('r', 6 + v * v * 26);
+    S[n.id].core.setAttribute('fill', n.id === sel ? '#ffd9b8' : '#fff');
+    });
+  placeLabels([...D.nodes].sort((a, b) => (b.id === sel) - (a.id === sel) || sc[b.id] - sc[a.id]).map((n) => ({ n, t: S[n.id].t, dx: 8, dy: -8 })), 12, (n) => sc[n.id] > 60 || n.id === sel); }
+
+function flower(v) { const K = D.keys.length; let d = '';
+  D.keys.forEach((k, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / K, r = 4 + v[k] * 2.2, w = .28;
+    const p = (rr, aa) => `${27 + rr * Math.cos(aa)} ${27 + rr * Math.sin(aa)}`;
+    d += `M27 27Q${p(r * .7, a - w)} ${p(r, a)}Q${p(r * .7, a + w)} 27 27Z`; });
+  return `<svg class="flower" viewBox="0 0 54 54"><path d="${d}" fill="#d9734e" fill-opacity=".55" stroke="#b95a3a" stroke-width=".6"/></svg>`; }
+
+function renderCard() { const n = byId[sel], score = D.scores[preset][sel], list = tab === 'safe' ? n.safe : n.caution;
+  document.getElementById('card').innerHTML = `
+    <div class="row">${flower(n.v)}<div><h2>${n.name.zh}</h2><div class="local">${n.name.local} · ${n.name.en}</div></div>
+    <div class="pct">${score}%<small>合你的胃口</small></div></div>
+    <p class="vibe">${n.vibe}</p>
+    <div class="tabs"><button data-t="safe" aria-pressed="${tab === 'safe'}">闭眼点 ${n.safe.length}</button><button data-t="caution" aria-pressed="${tab === 'caution'}">慎点 ${n.caution.length}</button></div>
+    <div>${list.map((d) => `<div class="dish">${flower(n.v)}<div><b>${d.zh}</b> <span>${d.local} · ${d.why}</span></div></div>`).join('')}</div>`;
+  document.querySelectorAll('.tabs button').forEach((b) => (b.onclick = () => { tab = b.dataset.t; renderCard(); })); }
+function select(id) { sel = id; paint(); renderCard(); }
+
+const nav = document.getElementById('presets');
+D.presets.forEach((p) => { const b = document.createElement('button'); b.textContent = p.name; b.onclick = () => { preset = p.id;
+  nav.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+  const [a, m, l] = SKIES[p.id]; document.body.style.background = `linear-gradient(180deg, ${a} 0%, ${m} 58%, ${l} 100%)`; select(sel); }; nav.appendChild(b); });
+nav.firstChild.setAttribute('aria-pressed', true);
+select(sel);
+</script>
+</body>
+</html>
