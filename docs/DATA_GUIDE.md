@@ -24,6 +24,14 @@
 - 10 = 几乎每顿都有；5 = 常见但不主导；0 = 基本不用
 - `primaryThermalMedium` 选权重最高、最能代表当地哲学的那一个
 
+## 食材 `ingredientProfile`（可选，Stage 1 新增）
+
+回答：**这个地方吃的是什么料**（风味向量回答“什么味”，`flavorPrinciple` 回答“用什么调味”）。
+- `staples`：1 项以上主食，写当地人最日常的那几种（米饭、米粉、馕、Injera、Tortilla……）
+- `keyIngredients`：3~8 种最具代表性的**食材**，不写纯调味料（鱼露、孜然等放进 `flavorPrinciple`）
+- 每种食材标一个 `category`：`seafood` / `pork` / `beef`（含牦牛、水牛）/ `lamb-goat` / `poultry` / `dairy` / `egg` / `legume` / `grain` / `vegetable` / `fruit` / `fungi` / `nut-seed`（含椰子）/ `offal-other`（内脏、昆虫、星虫等挑战型食材）
+- 用途：之后做“不吃猪肉/牛肉、清真、素食、爱海鲜”的筛选与提示
+
 ## 其他字段规则
 
 - `id`：`<ISO 3166 两位小写国家码>-<地区英文小写连字符>`，如 `th-isaan`、`pe-lima-coastal`

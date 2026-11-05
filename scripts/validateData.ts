@@ -28,8 +28,17 @@ for (const n of NODES) {
     if (v < 0 || v > 10) err(`${n.id}: methodWeights.${k}=${v} 不在 0~10`);
   }
   if (!/^#[0-9A-Fa-f]{6}$/.test(n.visuals.primaryColor)) err(`${n.id}: primaryColor 不是 #RRGGBB`);
-  if (n.travelerGuide.safeOrderDishes.length < 1) err(`${n.id}: 至少 1 道 safeOrderDishes`);
+  if (n.travelerGuide.safeOrderDishes.length < 2) err(`${n.id}: 至少 2 道 safeOrderDishes`);
   if (n.travelerGuide.cautionDishes.length < 1) err(`${n.id}: 至少 1 道 cautionDishes`);
+  if (n.travelerGuide.menuKeyTerms.length < 3) err(`${n.id}: 至少 3 个 menuKeyTerms`);
+  if (n.neighborIds.length < 1) err(`${n.id}: 至少 1 个 neighborIds`);
+  if (n.neighborIds.includes(n.id)) err(`${n.id}: neighborIds 不能包含自己`);
+  const ing = n.ingredientProfile;
+  if (ing) {
+    if (ing.staples.length < 1) err(`${n.id}: ingredientProfile.staples 至少 1 项`);
+    if (ing.keyIngredients.length < 3 || ing.keyIngredients.length > 8)
+      err(`${n.id}: ingredientProfile.keyIngredients 需 3~8 项`);
+  }
   if (!n.name.zh || !n.name.en || !n.name.local) err(`${n.id}: name 三语不全`);
 }
 

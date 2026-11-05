@@ -9,7 +9,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "validate:data": "tsx scripts/validateData.ts",
-    "verify:stage": "tsx scripts/validateData.ts && tsc -b && vite build"
+    "sanity": "tsx scripts/sanityCheck.ts",
+    "verify:stage": "tsx scripts/validateData.ts && tsx scripts/sanityCheck.ts && tsc -b && vite build"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",

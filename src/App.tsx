@@ -54,7 +54,13 @@ export default function App() {
           <h2 className="text-xl font-semibold">{selected.name.zh}</h2>
           <p className="text-slate-400 text-sm mb-4">{selected.travelerGuide.oneLineVibe}</p>
           <p className="text-sm mb-1">风味和弦：{selected.flavorPrinciple.summaryChord}</p>
-          <p className="text-sm mb-4">烹饪哲学：{selected.cookingProfile.philosophyNote}</p>
+          <p className="text-sm mb-1">烹饪哲学：{selected.cookingProfile.philosophyNote}</p>
+          {selected.ingredientProfile && (
+            <p className="text-sm mb-4">
+              主食：{selected.ingredientProfile.staples.join('、')}　食材：
+              {selected.ingredientProfile.keyIngredients.map((i) => i.name).join('、')}
+            </p>
+          )}
           <div className="space-y-1.5">
             {VECTOR_KEYS.map((k) => (
               <div key={k} className="flex items-center gap-2 text-xs">
