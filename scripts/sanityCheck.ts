@@ -46,6 +46,21 @@ check(
   `西藏↔尼泊尔 ${sim('cn-tibet', 'np-kathmandu')} > 西藏↔泰国中部 ${sim('cn-tibet', 'th-central')}`,
 );
 
+const rankIds = (presetId: string) => {
+  const p = PRESETS.find((x) => x.id === presetId);
+  if (!p) throw new Error(`缺少 ${presetId} 预设`);
+  return rankNodes(NODES, p).map((r) => r.node.id);
+};
+
+const heat = rankIds('sichuan-hunan-heat');
+check(heat.indexOf('cn-sichuan') < 2, `川湘重辣：四川排第 ${heat.indexOf('cn-sichuan') + 1}（需 ≤ 2）`);
+
+const nw = rankIds('northwest-noodle-grill').slice(0, 3);
+check(
+  nw.includes('cn-xinjiang') || nw.includes('uz-tashkent'),
+  `西北面食+烤肉：前 3 为 ${nw.join(', ')}（需含新疆或乌兹别克斯坦）`,
+);
+
 if (failures.length) {
   console.error(`\n❌ 合理性抽查失败 ${failures.length} 项`);
   process.exit(1);

@@ -46,6 +46,10 @@ for (const n of NODES) {
   for (const nb of n.neighborIds) if (!ids.has(nb)) err(`${n.id}: neighborIds 引用不存在的 ${nb}`);
 }
 
+if (CORRIDORS.length < 3) err(`至少 3 条走廊（当前 ${CORRIDORS.length}）`);
+if (PRESETS.length < 4) err(`至少 4 个口味预设（当前 ${PRESETS.length}）`);
+if (new Set(PRESETS.map((p) => p.id)).size !== PRESETS.length) err('预设 id 重复');
+
 for (const c of CORRIDORS) {
   if (c.stops.length < 3) err(`走廊 ${c.id}: 至少 3 站`);
   for (const s of c.stops) if (!ids.has(s.nodeId)) err(`走廊 ${c.id}: stop 引用不存在的 ${s.nodeId}`);
