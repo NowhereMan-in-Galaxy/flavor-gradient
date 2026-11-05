@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FlavorGradient v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Inter+Tight:wght@500;600&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="data.js"></script>
+<style>
+  :root { --bg: #f3f4f6; --card: #ffffff; --ink: #1f2430; --dim: #6b7280; --line: #e5e7eb; --land: #e3e6ea; --accent: #0f9f8f; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.6 'Noto Sans SC', system-ui, sans-serif; display: flex; flex-direction: column; }
+  header { display: flex; align-items: center; gap: 20px; padding: 14px 24px; }
+  .logo { font: 600 18px 'Inter Tight', sans-serif; letter-spacing: -.01em; }
+  .search { margin-left: auto; display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 14px; width: 320px; color: var(--dim); }
+  .search input { border: 0; outline: 0; font: inherit; flex: 1; background: none; color: var(--ink); }
+  .chips { display: flex; gap: 8px; padding: 0 24px 12px; overflow-x: auto; scrollbar-width: none; }
+  .chip { flex-shrink: 0; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 7px 14px 7px 10px; cursor: pointer; font: 500 13px 'Noto Sans SC'; color: var(--ink); transition: all .2s; }
+  .chip i { width: 10px; height: 10px; border-radius: 50%; }
+  .chip[aria-pressed=true] { color: #fff; border-color: transparent; }
+  main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; padding: 0 24px 20px; }
+  .mapbox { position: relative; background: var(--card); border-radius: 18px; overflow: hidden; min-height: 0; }
+  .mapbox canvas { width: 100%; height: 100%; display: block; cursor: pointer; }
+  .legend { position: absolute; left: 18px; bottom: 16px; font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: 8px; }
+  .legend .ramp { width: 120px; height: 8px; border-radius: 4px; }
+  .tip { position: absolute; pointer-events: none; background: var(--ink); color: #fff; font-size: 12px; padding: 5px 10px; border-radius: 8px; transform: translate(-50%, -140%); white-space: nowrap; display: none; }
+  aside { background: var(--card); border-radius: 18px; padding: 22px; overflow-y: auto; min-height: 0; }
+  .eyebrow { font-size: 12px; color: var(--dim); }
+  h2 { font: 700 22px/1.3 'Noto Sans SC'; margin: 2px 0 4px; }
+  .vibe { color: var(--dim); }
+  .score { display: flex; align-items: baseline; gap: 8px; margin: 18px 0 6px; }
+  .score b { font: 600 40px/1 'Inter Tight'; }
+  .meter { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+  .meter span { display: block; height: 100%; border-radius: 3px; transition: width .5s; }
+  h3 { font: 500 13px 'Noto Sans SC'; color: var(--dim); margin: 22px 0 8px; }
+  .dish { display: flex; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); }
+  .dish:first-of-type { border-top: 0; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 8px; flex-shrink: 0; }
+  .dish small { display: block; color: var(--dim); font-size: 12px; line-height: 1.5; }
+  .bars { display: grid; grid-template-columns: 4.5em 1fr; gap: 6px 10px; font-size: 12px; color: var(--dim); align-items: center; }
+  .bars div { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+  .bars div span { display: block; height: 100%; border-radius: 3px; transition: width .5s; }
+  @media (max-width: 860px) {
+    header { padding: 12px 16px; flex-wrap: wrap; } .search { width: 100%; margin-left: 0; }
+    .chips { padding: 0 16px 10px; }
+    main { grid-template-columns: 1fr; padding: 0 12px 12px; } .mapbox { height: 52vh; } aside { overflow: visible; }
+    body { display: block; }
+  }
+</style>
+</head>
+<body>
+<header><div class="logo">FlavorGradient</div><label class="search">⌕ <input placeholder="搜国家、菜名或菜单上的词" /></label></header>
+<nav class="chips" id="chips"></nav>
+<main>
+  <div class="mapbox" id="mapbox"><canvas id="map"></canvas><div class="tip" id="tip"></div>
+    <div class="legend"><span>不太合</span><span class="ramp" id="ramp"></span><span>很合你</span></div></div>
+  <aside id="card"></aside>
+</main>
+<script>
+const D = window.FG;
+const COLORS = { 'coastal-sea': '#0f9f8f', 'sichuan-hunan-heat': '#e0453a', 'northwest-noodle-grill': '#d98b2b', 'light-japanese': '#4f6bed', 'cantonese-wokhei': '#ef7a2e',
+  'jiangzhe-sweet-umami': '#d4508f', 'yungui-sour-spicy': '#5fa33a', 'dongbei-hearty': '#a0663a', 'spice-explorer': '#8b5cf6', 'fresh-greens': '#2fa36b' };
+let preset = D.presets[0].id, sel = null;
+const byId = Object.fromEntries(D.nodes.map((n) => [n.id, n]));
+const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const land = new Path2D(D.land), sphere = new Path2D(D.sphere);
+const cv = document.getElementById('map'), box = document.getElementById('mapbox'), tip = document.getElementById('tip');
+let view = { k: 1, x: 0, y: 0 };
+
+const GW = 400, GH = Math.round(400 * D.H / D.W), S = D.W / GW;
+let fieldCanvas = null;
+function buildField() {
+  const sc = D.scores[preset], [r, g, b] = hex(COLORS[preset]);
+  const img = new ImageData(GW, GH), sig2 = 2 * 30 * 30;
+  for (let j = 0; j < GH; j++) for (let i = 0; i < GW; i++) {
+    const x = i * S, y = j * S; let w = 0, s = 0, wmax = 0;
+    for (const n of D.nodes) { const k = Math.exp(-((n.x - x) ** 2 + (n.y - y) ** 2) / sig2); w += k; s += k * sc[n.id]; if (k > wmax) wmax = k; }
+    const v = w > 1e-6 ? s / w / 100 : 0, cover = Math.min(1, wmax * 1.3), t = Math.max(0, (v - 0.35) / 0.6);
+    const q = (j * GW + i) * 4; img.data[q] = r; img.data[q + 1] = g; img.data[q + 2] = b; img.data[q + 3] = 255 * cover * t ** 1.4 * 0.85;
+  }
+  fieldCanvas = new OffscreenCanvas(GW, GH); fieldCanvas.getContext('2d').putImageData(img, 0, 0);
+}
+function fit() {
+  const dpr = devicePixelRatio || 1, w = box.clientWidth, h = box.clientHeight;
+  cv.width = w * dpr; cv.height = h * dpr;
+  const k = Math.max(w / D.W, h / D.H) * (w < 600 ? 1.6 : 1.05);
+  view = { k, x: (w - D.W * k) / 2 - (w < 600 ? 260 * k : 0), y: (h - D.H * k) / 2 };
+  draw();
+}
+function draw() {
+  const ctx = cv.getContext('2d'), dpr = devicePixelRatio || 1, c = COLORS[preset];
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.fillStyle = '#f7f8fa'; ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.translate(view.x, view.y); ctx.scale(view.k, view.k);
+  ctx.fillStyle = '#e3e6ea'; ctx.fill(land);
+  ctx.save(); ctx.clip(land); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(fieldCanvas, 0, 0, D.W, D.H); ctx.restore();
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = .6 / view.k; ctx.stroke(land);
+  const sc = D.scores[preset];
+  [...D.nodes].sort((a, b) => sc[a.id] - sc[b.id]).forEach((n) => {
+    const v = sc[n.id] / 100, r = (2 + v ** 2 * 3) / view.k * 1.4;
+    ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, 7); ctx.fillStyle = v > .7 ? c : '#9aa1ab'; ctx.fill();
+    ctx.lineWidth = 1.2 / view.k; ctx.strokeStyle = '#fff'; ctx.stroke();
+    if (n.id === sel) { ctx.beginPath(); ctx.arc(n.x, n.y, r + 4 / view.k, 0, 7); ctx.strokeStyle = '#1f2430'; ctx.lineWidth = 1.5 / view.k; ctx.stroke(); }
+  });
+  if (sel) { const n = byId[sel]; ctx.font = `500 ${13 / view.k}px "Noto Sans SC"`; ctx.fillStyle = '#1f2430'; ctx.fillText(n.name.zh.replace(/（.*）/, ''), n.x + 8 / view.k, n.y - 7 / view.k); }
+}
+function nodeAt(ev) { const r = cv.getBoundingClientRect(), x = (ev.clientX - r.left - view.x) / view.k, y = (ev.clientY - r.top - view.y) / view.k;
+  let best = null, bd = 12 / view.k; for (const n of D.nodes) { const d = Math.hypot(n.x - x, n.y - y); if (d < bd) { bd = d; best = n; } } return best; }
+cv.addEventListener('mousemove', (e) => { const n = nodeAt(e); if (!n) { tip.style.display = 'none'; return; } const r = box.getBoundingClientRect();
+  tip.style.display = 'block'; tip.style.left = e.clientX - r.left + 'px'; tip.style.top = e.clientY - r.top + 'px'; tip.textContent = `${n.name.zh} · ${D.scores[preset][n.id]}%`; });
+cv.addEventListener('click', (e) => { const n = nodeAt(e); if (n) { sel = n.id; draw(); renderCard(); } });
+d3.select(cv).call(d3.zoom().scaleExtent([.5, 8]).on('zoom', (e) => { if (!e.sourceEvent) return; const t = e.transform; view.k0 ??= view.k; view.x0 ??= view.x; view.y0 ??= view.y;
+  view.k = view.k0 * t.k; view.x = t.x + view.x0 * t.k; view.y = t.y + view.y0 * t.k; draw(); }));
+
+const LABELS = D.labels;
+function renderCard() {
+  const c = COLORS[preset], sc = D.scores[preset];
+  const ranked = [...D.nodes].sort((a, b) => sc[b.id] - sc[a.id]);
+  if (!sel) {
+    document.getElementById('card').innerHTML = `<div class="eyebrow">按「${D.presets.find((p) => p.id === preset).name}」最适合你的地方</div>
+      ${ranked.slice(0, 8).map((n, i) => `<div class="dish" data-id="${n.id}" style="cursor:pointer"><span class="dot" style="background:${c};opacity:${1 - i * .09}"></span><div style="flex:1">${n.name.zh}<small>${n.vibe}</small></div><b style="font:600 15px Inter Tight">${sc[n.id]}%</b></div>`).join('')}
+      <p class="eyebrow" style="margin-top:14px">点地图上的点看详情</p>`;
+    document.querySelectorAll('[data-id]').forEach((el) => (el.onclick = () => { sel = el.dataset.id; draw(); renderCard(); }));
+    return;
+  }
+  const n = byId[sel], s = sc[n.id];
+  document.getElementById('card').innerHTML = `
+    <div class="eyebrow"><a href="#" id="back" style="color:inherit">← 推荐列表</a></div>
+    <h2>${n.name.zh}</h2><div class="vibe">${n.vibe}</div>
+    <div class="score"><b style="color:${c}">${s}%</b><span class="eyebrow">合你的胃口</span></div>
+    <div class="meter"><span style="width:${s}%;background:${c}"></span></div>
+    <h3>闭眼点</h3>${n.safe.map((d) => `<div class="dish"><span class="dot" style="background:${c}"></span><div>${d.zh}<small>${d.why}</small></div></div>`).join('')}
+    <h3>慎点</h3>${n.caution.map((d) => `<div class="dish"><span class="dot" style="background:#c9cdd3"></span><div>${d.zh}<small>${d.why}</small></div></div>`).join('')}
+    <h3>风味</h3><div class="bars">${D.keys.map((k) => `<span>${LABELS[k]}</span><div><span style="width:${n.v[k] * 10}%;background:${c}"></span></div>`).join('')}</div>`;
+  document.getElementById('back').onclick = (e) => { e.preventDefault(); sel = null; draw(); renderCard(); };
+}
+const chips = document.getElementById('chips');
+D.presets.forEach((p, i) => { const b = document.createElement('button'); b.className = 'chip'; b.innerHTML = `<i style="background:${COLORS[p.id]}"></i>${p.name}`;
+  b.onclick = () => { preset = p.id; chips.querySelectorAll('.chip').forEach((x) => { const on = x === b; x.setAttribute('aria-pressed', on); x.style.background = on ? COLORS[preset] : ''; });
+    document.getElementById('ramp').style.background = `linear-gradient(90deg, #e3e6ea, ${COLORS[preset]})`; buildField(); draw(); renderCard(); };
+  chips.appendChild(b); if (i === 0) setTimeout(() => b.click()); });
+buildField(); addEventListener('resize', fit); fit(); renderCard();
+</script>
+</body>
+</html>
