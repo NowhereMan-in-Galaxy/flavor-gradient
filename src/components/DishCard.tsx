@@ -21,7 +21,7 @@ export function DishCard({ dish, node }: Props) {
 
   if (dish.imageUrl) {
     return (
-      <figure className="bg-slateNight rounded-lg overflow-hidden text-sm">
+      <figure className="bg-slateNight overflow-hidden text-sm">
         <div className="relative">
           <img src={dish.imageUrl} alt={dish.zhName} loading="lazy" className="w-full aspect-[16/10] object-cover" />
           <div className="absolute right-2 bottom-2 rounded-full ring-2 ring-black/40">
@@ -37,7 +37,7 @@ export function DishCard({ dish, node }: Props) {
   }
 
   return (
-    <div className="bg-slateNight rounded-lg p-3 text-sm flex gap-3 items-start">
+    <div className="bg-slateNight p-3 text-sm flex gap-3 items-start">
       <NodeCrest node={node} size={56} />
       {text}
     </div>

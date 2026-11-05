@@ -6,8 +6,8 @@ import { feature, mesh } from 'topojson-client';
 import type { GeometryCollection, Topology } from 'topojson-specification';
 import world from 'world-atlas/countries-110m.json';
 import type { CulinaryNode } from '../types/flavor';
-import { nodeColor } from '../lib/color';
-import { NodeDot } from './NodeDot';
+import { nodeTone } from '../lib/color';
+import { NodeDot, dotRadius } from './NodeDot';
 
 const W = 960;
 const H = 500;
@@ -81,7 +81,7 @@ export function WorldMap({ nodes, scores, selectedId, onSelect, highlight }: Pro
   }, [narrow]);
 
   const points = useMemo(() => new Map(nodes.map((n) => [n.id, project(n.coordinates)])), [nodes]);
-  const colors = useMemo(() => new Map(nodes.map((n) => [n.id, nodeColor(n)])), [nodes]);
+  const colors = useMemo(() => new Map(nodes.map((n) => [n.id, nodeTone(n)])), [nodes]);
 
   const edges = useMemo(() => {
     const seen = new Set<string>();
@@ -94,6 +94,8 @@ export function WorldMap({ nodes, scores, selectedId, onSelect, highlight }: Pro
         if (!b || seen.has(key)) continue;
         seen.add(key);
         const d = pathGen({ type: 'LineString', coordinates: [a.coordinates, b.coordinates] }) ?? '';
+        // 跨越日界线的连线会被切成两段贴在地图边缘，不画
+        if ((d.match(/M/g) ?? []).length > 1) continue;
         out.push({ id: key, a, b, d });
       }
     }
@@ -146,8 +148,27 @@ export function WorldMap({ nodes, scores, selectedId, onSelect, highlight }: Pro
     [nodes, scores],
   );
 
+  // 标签：按匹配度贪心放置，与已放置的标签重叠则隐藏（随缩放重新计算）
+  const labels = useMemo(() => {
+    const boxes: number[][] = [];
+    const out: { n: CulinaryNode; x: number; y: number }[] = [];
+    const order = [...nodes].sort((a, b) => Number(b.id === selectedId) - Number(a.id === selectedId) || (scores.get(b.id) ?? 0) - (scores.get(a.id) ?? 0));
+    for (const n of order) {
+      const s = scores.get(n.id) ?? 0;
+      if (route ? !route.ids.has(n.id) : s < 50 && n.id !== selectedId) continue;
+      const [px, py] = points.get(n.id)!;
+      const off = (dotRadius(s) + 3) / t.k;
+      const w = (n.name.zh.replace(/（.*）/, '').length * 11) / t.k;
+      const box = [px + off, py - off - 11 / t.k, px + off + w, py - off];
+      if (boxes.some((o) => box[0] < o[2] && box[2] > o[0] && box[1] < o[3] && box[3] > o[1])) continue;
+      boxes.push(box);
+      out.push({ n, x: box[0], y: box[3] });
+    }
+    return out;
+  }, [nodes, scores, selectedId, points, t.k, route]);
+
   return (
-    <div ref={wrapRef} className="relative w-full rounded-2xl overflow-hidden bg-obsidian border border-slate-800">
+    <div ref={wrapRef} className="relative w-full overflow-hidden bg-[#101216]">
       <svg
         ref={svgRef}
         viewBox={`0 0 ${W} ${H}`}
@@ -157,15 +178,6 @@ export function WorldMap({ nodes, scores, selectedId, onSelect, highlight }: Pro
         aria-label="全球风味节点地图"
       >
         <defs>
-          <filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="2.5" />
-          </filter>
-          {nodes.map((n) => (
-            <radialGradient key={n.id} id={`glow-${n.id}`}>
-              <stop offset="0%" stopColor={colors.get(n.id)} stopOpacity={0.9} />
-              <stop offset="100%" stopColor={colors.get(n.id)} stopOpacity={0} />
-            </radialGradient>
-          ))}
           {edges.map(({ id, a, b }) => {
             const [x1, y1] = points.get(a.id)!;
             const [x2, y2] = points.get(b.id)!;
@@ -179,22 +191,22 @@ export function WorldMap({ nodes, scores, selectedId, onSelect, highlight }: Pro
         </defs>
 
         <g transform={t.toString()}>
-          <path d={SPHERE_D} fill="#0B1120" />
-          <path d={GRATICULE_D} fill="none" stroke="#1E293B" strokeWidth={0.5 / t.k} />
-          <path d={LAND_D} fill="#1A2234" />
-          <path d={BORDERS_D} fill="none" stroke="#2A3550" strokeWidth={0.5 / t.k} />
+          <path d={SPHERE_D} fill="#101216" stroke="#2A2B2E" strokeWidth={0.8 / t.k} />
+          <path d={GRATICULE_D} fill="none" stroke="#24262A" strokeWidth={0.5 / t.k} strokeDasharray={`${1 / t.k} ${3 / t.k}`} />
+          <path d={LAND_D} fill="#1B1D21" />
+          <path d={BORDERS_D} fill="none" stroke="#2C2E32" strokeWidth={0.4 / t.k} />
           <g fill="none" strokeLinecap="round">
             {edges.map(({ id, d }) => (
-              <path key={id} d={d} stroke={`url(#edge-${id})`} strokeWidth={1.2 / t.k} strokeOpacity={route ? 0.12 : 0.55} />
+              <path key={id} d={d} stroke={`url(#edge-${id})`} strokeWidth={0.8 / t.k} strokeOpacity={route ? 0.08 : 0.35} />
             ))}
           </g>
           {route && highlight && (
             <path
               d={route.d}
               fill="none"
-              stroke={highlight.color}
-              strokeWidth={3 / t.k}
-              strokeOpacity={0.8}
+              stroke="#C8A96E"
+              strokeWidth={1.4 / t.k}
+              strokeOpacity={0.9}
               strokeDasharray={`${6 / t.k} ${4 / t.k}`}
               strokeLinecap="round"
             />
@@ -217,10 +229,17 @@ export function WorldMap({ nodes, scores, selectedId, onSelect, highlight }: Pro
               />
             );
           })}
+          <g pointerEvents="none" className="font-serif">
+            {labels.map(({ n, x, y }) => (
+              <text key={n.id} x={x} y={y} fontSize={11 / t.k} fill={n.id === selectedId ? '#F4F2EE' : '#9A958B'}>
+                {n.name.zh.replace(/（.*）/, '')}
+              </text>
+            ))}
+          </g>
           {cursor && highlight && (
             <g transform={`translate(${cursor[0]},${cursor[1]})`} pointerEvents="none">
-              <circle r={10 / t.k} fill={highlight.color} opacity={0.35} filter="url(#blur)" />
-              <circle r={4.5 / t.k} fill="#fff" stroke={highlight.color} strokeWidth={2 / t.k} />
+              <circle r={9 / t.k} fill="none" stroke="#C8A96E" strokeWidth={0.8 / t.k} />
+              <circle r={3.5 / t.k} fill="#F4F2EE" />
             </g>
           )}
         </g>
@@ -228,17 +247,43 @@ export function WorldMap({ nodes, scores, selectedId, onSelect, highlight }: Pro
 
       {hover && (
         <div
-          className="pointer-events-none absolute z-10 rounded-lg bg-slateNight/95 border border-slate-700 px-3 py-2 text-xs shadow-xl max-w-[220px]"
+          className="pointer-events-none absolute z-10 bg-slateNight/95 border border-slate-700 px-3 py-2 text-xs max-w-[220px]"
           style={{ left: Math.min(hover.x + 12, (wrapRef.current?.clientWidth ?? 0) - 230), top: hover.y + 12 }}
         >
-          <div className="font-semibold text-sm">
-            {hover.node.name.zh} <span className="font-mono text-emerald-300">{scores.get(hover.node.id)}%</span>
+          <div className="font-serif text-sm">
+            {hover.node.name.zh} <span className="font-mono text-brass">{scores.get(hover.node.id)}%</span>
           </div>
           <div className="text-slate-400">{hover.node.flavorPrinciple.summaryChord}</div>
         </div>
       )}
 
-      <div className="absolute bottom-2 left-3 text-[10px] text-slate-500">滚轮/双指缩放 · 拖拽平移 · 点击节点看详情</div>
+      <MapLegend />
+    </div>
+  );
+}
+
+const LEGEND = [
+  ['#86C8A6', '本味 · 酸 · 草本'],
+  ['#D9A963', '干香料 · 油脂'],
+  ['#7F9FD6', '发酵鲜'],
+] as const;
+
+/** 图例：颜色 = 风味谱系，大小 = 匹配度 */
+function MapLegend() {
+  return (
+    <div className="absolute left-3 bottom-3 text-[11px] text-slate-400 space-y-1 pointer-events-none">
+      {LEGEND.map(([c, l]) => (
+        <div key={l} className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full" style={{ background: c }} />
+          {l}
+        </div>
+      ))}
+      <div className="flex items-end gap-1.5 pt-1">
+        {[30, 60, 90].map((s) => (
+          <span key={s} className="rounded-full bg-slate-400" style={{ width: dotRadius(s) * 2, height: dotRadius(s) * 2 }} />
+        ))}
+        <span className="ml-1">匹配度</span>
+      </div>
     </div>
   );
 }

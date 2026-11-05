@@ -136,7 +136,7 @@
 
 ---
 
-## Stage 6 — 点菜罗盘 + 部署（约 30 分钟）
+## ✅ Stage 6 — 点菜罗盘 + 部署（约 30 分钟）
 
 **分支**：`stage-6-menu-compass-deploy`
 
@@ -153,12 +153,25 @@
 ### 验收标准
 - [x] 搜 “Ceviche”、“秘鲁”、“Lima” 都能命中秘鲁沿海
 - [x] 搜 “Wot” 命中埃塞俄比亚且显示为「慎点」
-- [ ] GitHub Pages 在线可访问（需合并到 main 并在仓库 Settings → Pages 选择 “GitHub Actions”）；首页加载 < 3s（4G 模拟）✅ 本地 Lighthouse LCP 1.7s
+- [x] GitHub Pages 在线可访问：https://nowhereman-in-galaxy.github.io/flavor-gradient/；首页加载 < 3s（4G 模拟）✅ 本地 Lighthouse LCP 1.7s
 - [x] README 中有“贡献一个节点”的 5 步说明
 
 ---
 
-## Stage 7+（之后，人工决定是否开工）
+## ✅ Stage 7 — 视觉升级：学术图版式
+
+**分支**：`stage-7-visual-refresh`（方向探索原型见 `design-demos/`）
+
+### 验收标准
+- [x] 统一色板（暖中性墨色 + 低饱和节点色 + 黄铜强调）与字体（思源宋体标题 / 思源黑体正文 / Plex Mono 数据）
+- [x] 页面按「图 1–4」组织：风味星图、风味空间（PCA 双标图）、匹配度排行（点线图 + 10 维热力条）、走廊风味剖面
+- [x] 地图标签按匹配度贪心避让；去掉发光滤镜；附颜色与大小图例
+- [x] 胃口预设 4 → 10 个，改为一行可滚动标签
+- [x] `lib/pca.ts` 有单元测试；桌面与 390px 截图无横向溢出
+
+## Stage 8+（之后，人工决定是否开工）
+
+- 数据扩充：每个地区 8–12 道菜（可选 `dishes` 字段，带单菜风味向量），节点扩到 40–50 个
 
 - 全球撒网：扩充到 80+ 节点，按 `regionGroup` 分批 PR
 - 用户自定义口味：拖动 10 个滑块生成自己的预设，存 localStorage，可分享 URL
