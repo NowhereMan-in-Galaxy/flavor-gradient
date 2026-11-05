@@ -81,6 +81,34 @@ export interface DishRecommendation {
   imageUrl?: string;         // 预留图片槽位：未来可直接填入 Unsplash/Wikimedia/自拍美食图 URL
 }
 
+/** 食材大类：用于饮食禁忌筛选（清真/素食/不吃牛）与“爱海鲜”等偏好 */
+export type IngredientCategory =
+  | 'seafood'      // 鱼、虾蟹、贝类
+  | 'pork'
+  | 'beef'         // 含牦牛
+  | 'lamb-goat'
+  | 'poultry'
+  | 'dairy'        // 奶、酥油、奶酪、酸奶
+  | 'egg'
+  | 'legume'       // 豆类、豆制品、鹰嘴豆、扁豆
+  | 'grain'        // 米、麦、玉米、苔麸、青稞
+  | 'vegetable'    // 蔬菜、块茎
+  | 'fruit'
+  | 'fungi'
+  | 'nut-seed'     // 花生、芝麻、椰子
+  | 'offal-other'; // 内脏、昆虫、星虫等“挑战型”食材
+
+export interface KeyIngredient {
+  name: string;               // 中文名，可附当地语言，如 "苔麸 Teff"
+  category: IngredientCategory;
+}
+
+/** 这个地方“吃的是什么”——与风味向量互补：向量答“什么味”，这里答“什么料” */
+export interface IngredientProfile {
+  staples: string[];               // 主食：米饭、米粉、馕、Injera、玉米饼……
+  keyIngredients: KeyIngredient[]; // 最具代表性的 3~8 种食材（不含纯调味料，调味料见 flavorPrinciple）
+}
+
 export interface CulinaryNode {
   id: string;
   name: {
@@ -113,6 +141,8 @@ export interface CulinaryNode {
     summaryChord: string;
   };
   cookingProfile: CookingTechniqueProfile;
+  /** 可选（Stage 1 新增）：主食与核心食材 */
+  ingredientProfile?: IngredientProfile;
   sensoryVector: SensoryVector10D;
   pairingLogic: 'contrast-Eastern' | 'compound-sharing-Western' | 'hybrid-bridge';
   visuals: {

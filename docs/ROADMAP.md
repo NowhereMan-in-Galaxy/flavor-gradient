@@ -16,7 +16,7 @@
 
 ---
 
-## Stage 1 — 种子数据扩充到 20 个节点（约 50 分钟）
+## ✅ Stage 1 — 种子数据扩充到 20 个节点（约 50 分钟）
 
 **分支**：`stage-1-seed-data`
 
@@ -37,14 +37,14 @@
 6. 把 `neighborIds` 按地理邻接 + 风味相似补齐，每个节点至少 1 个邻居（埃塞俄比亚可连黎巴嫩/北印度）。
 
 ### 验收标准
-- [ ] `npm run validate:data` 输出 `≥ 20 个节点`，0 错误
-- [ ] 把 `validateData.ts` 的规则升级：`safeOrderDishes ≥ 2`、`menuKeyTerms ≥ 3`、`neighborIds ≥ 1`
-- [ ] **合理性抽查**（写成 `scripts/sanityCheck.ts` 并加入 `verify:stage`）：用默认预设“沿海本味 + 东南亚酸鲜胃”排序后
+- [x] `npm run validate:data` 输出 `≥ 20 个节点`，0 错误
+- [x] 把 `validateData.ts` 的规则升级：`safeOrderDishes ≥ 2`、`menuKeyTerms ≥ 3`、`neighborIds ≥ 1`
+- [x] **合理性抽查**（写成 `scripts/sanityCheck.ts` 并加入 `verify:stage`）：用默认预设“沿海本味 + 东南亚酸鲜胃”排序后
   - 前 5 名中至少 3 个来自 `china-coastal` / `southeast-asia` / 秘鲁沿海 / 日本关西
   - 埃塞俄比亚高原、黎巴嫩、北印度旁遮普**都在后 1/3**
   - 潮汕 ↔ 闽南 的 `nodeSimilarity` > 潮汕 ↔ 埃塞俄比亚 的相似度
   - 西藏 ↔ 尼泊尔 的相似度 > 西藏 ↔ 泰国中部
-- [ ] `docs/SOURCES.md` 覆盖全部节点
+- [x] `docs/SOURCES.md` 覆盖全部节点
 
 ---
 
