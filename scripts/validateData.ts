@@ -7,6 +7,9 @@ import { CORRIDORS } from '../src/data/corridors';
 import { PRESETS } from '../src/data/presets';
 import { VECTOR_KEYS } from '../src/lib/scoring';
 
+/** 只允许许可明确的图片来源（AGENTS.md §2） */
+const ALLOWED_IMAGE_HOSTS = ['upload.wikimedia.org', 'images.unsplash.com'];
+
 const errors: string[] = [];
 const err = (m: string) => errors.push(m);
 
@@ -34,6 +37,17 @@ for (const n of NODES) {
   if (n.travelerGuide.menuKeyTerms.length < 3) err(`${n.id}: 至少 3 个 menuKeyTerms`);
   if (n.neighborIds.length < 1) err(`${n.id}: 至少 1 个 neighborIds`);
   if (n.neighborIds.includes(n.id)) err(`${n.id}: neighborIds 不能包含自己`);
+  for (const d of [...n.travelerGuide.safeOrderDishes, ...n.travelerGuide.cautionDishes]) {
+    if (!d.imageUrl) continue;
+    let host = '';
+    try {
+      host = new URL(d.imageUrl).host;
+    } catch {
+      err(`${n.id}: ${d.localName} 的 imageUrl 不是合法 URL`);
+    }
+    if (host && !ALLOWED_IMAGE_HOSTS.includes(host)) err(`${n.id}: ${d.localName} 图片来源 ${host} 不在白名单`);
+    if (!d.imageCredit) err(`${n.id}: ${d.localName} 有 imageUrl 但缺少 imageCredit`);
+  }
   const ing = n.ingredientProfile;
   if (ing) {
     if (ing.staples.length < 1) err(`${n.id}: ingredientProfile.staples 至少 1 项`);

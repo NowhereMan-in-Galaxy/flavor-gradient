@@ -79,6 +79,7 @@ export interface DishRecommendation {
   whyMatchOrWarn: string;    // 为什么适合你的胃 / 为什么可能踩雷
   svgBadge?: SvgGlyphType;
   imageUrl?: string;         // 预留图片槽位：未来可直接填入 Unsplash/Wikimedia/自拍美食图 URL
+  imageCredit?: string;      // 有 imageUrl 时必填：作者 + 许可证 + 来源，如 "Kham Tran, CC BY 3.0, via Wikimedia Commons"
 }
 
 /** 食材大类：用于饮食禁忌筛选（清真/素食/不吃牛）与“爱海鲜”等偏好 */

@@ -26,3 +26,9 @@
 | pe-lima-coastal | editorial-estimate；Wikipedia: Peruvian cuisine；Wikipedia: Chifa |
 | mx-oaxaca | editorial-estimate；Wikipedia: Oaxacan cuisine；Wikipedia: Mole (sauce) |
 | jp-kansai | editorial-estimate；Wikipedia: Japanese cuisine（Kansai 节）；Wikipedia: Dashi |
+
+## 图片
+
+| 节点 / 菜品 | 图片 | 作者与许可 |
+|---|---|---|
+| vn-north / Phở bò | [File:Pho-Beef-Noodles-2008.jpg](https://commons.wikimedia.org/wiki/File:Pho-Beef-Noodles-2008.jpg) | Kham Tran (www.khamtran.com)，CC BY 3.0 / GFDL，via Wikimedia Commons |

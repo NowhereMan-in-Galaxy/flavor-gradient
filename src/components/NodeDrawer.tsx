@@ -3,6 +3,8 @@ import { X } from 'lucide-react';
 import type { CulinaryNode, DishRecommendation } from '../types/flavor';
 import { nodeColor } from '../lib/color';
 import { VectorBars } from './VectorBars';
+import { DishCard } from './DishCard';
+import { NodeCrest } from './FlavorCrest';
 
 interface Props {
   node: CulinaryNode | null;
@@ -10,19 +12,24 @@ interface Props {
   onClose: () => void;
 }
 
-function DishList({ title, dishes, tone }: { title: string; dishes: DishRecommendation[]; tone: 'safe' | 'caution' }) {
+function DishList({
+  title,
+  dishes,
+  node,
+  tone,
+}: {
+  title: string;
+  dishes: DishRecommendation[];
+  node: CulinaryNode;
+  tone: 'safe' | 'caution';
+}) {
   return (
     <div>
       <h3 className={`text-xs uppercase mb-2 ${tone === 'safe' ? 'text-emerald-400' : 'text-amber-400'}`}>{title}</h3>
       <ul className="space-y-2">
         {dishes.map((d) => (
-          <li key={d.localName} className="bg-slateNight rounded-lg p-3 text-sm">
-            <div className="font-medium">
-              {d.zhName}
-              {d.localName !== d.zhName && <span className="text-slate-500 font-normal"> {d.localName}</span>}
-            </div>
-            <div className="text-xs text-slate-400 mt-0.5">{d.cookingMethod}</div>
-            <div className="mt-1">{d.whyMatchOrWarn}</div>
+          <li key={d.localName}>
+            <DishCard dish={d} node={node} />
           </li>
         ))}
       </ul>
@@ -50,7 +57,7 @@ export function NodeDrawer({ node, score, onClose }: Props) {
       aria-label={`${node.name.zh} 详情`}
     >
       <div className="sticky top-0 bg-cardNight/95 backdrop-blur px-5 pt-4 pb-3 border-b border-slate-800 flex items-start gap-3">
-        <span className="mt-1.5 w-3 h-3 rounded-full shrink-0" style={{ background: color, boxShadow: `0 0 12px ${color}` }} />
+        <NodeCrest node={node} size={48} />
         <div className="flex-1 min-w-0">
           <h2 className="text-lg font-semibold leading-tight">
             {node.name.zh} <span className="text-slate-500 text-sm font-normal">{node.name.local}</span>
@@ -77,8 +84,8 @@ export function NodeDrawer({ node, score, onClose }: Props) {
 
         <VectorBars vector={node.sensoryVector} color={color} />
 
-        <DishList title="闭眼点" dishes={g.safeOrderDishes} tone="safe" />
-        <DishList title="慎点" dishes={g.cautionDishes} tone="caution" />
+        <DishList title="闭眼点" dishes={g.safeOrderDishes} node={node} tone="safe" />
+        <DishList title="慎点" dishes={g.cautionDishes} node={node} tone="caution" />
 
         <div>
           <h3 className="text-xs uppercase mb-2 text-slate-400">菜单关键词</h3>
