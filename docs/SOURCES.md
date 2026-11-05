@@ -26,6 +26,28 @@
 | pe-lima-coastal | editorial-estimate；Wikipedia: Peruvian cuisine；Wikipedia: Chifa |
 | mx-oaxaca | editorial-estimate；Wikipedia: Oaxacan cuisine；Wikipedia: Mole (sauce) |
 | jp-kansai | editorial-estimate；Wikipedia: Japanese cuisine（Kansai 节）；Wikipedia: Dashi |
+| cn-hunan | editorial-estimate；Wikipedia: Hunan cuisine |
+| cn-huaiyang | editorial-estimate；Wikipedia: Huaiyang cuisine |
+| cn-hangzhou | editorial-estimate；Wikipedia: Zhejiang cuisine |
+| cn-huizhou | editorial-estimate；Wikipedia: Anhui cuisine |
+| cn-shandong | editorial-estimate；Wikipedia: Shandong cuisine |
+| cn-beijing | editorial-estimate；Wikipedia: Beijing cuisine |
+| cn-dongbei | editorial-estimate；Wikipedia: Northeastern Chinese cuisine |
+| cn-hakka | editorial-estimate；Wikipedia: Hakka cuisine |
+| cn-shaanxi | editorial-estimate；Wikipedia: Shaanxi cuisine |
+| cn-guizhou | editorial-estimate；Wikipedia: Guizhou cuisine |
+| kr-seoul | editorial-estimate；Wikipedia: Korean cuisine |
+| fr-provence | editorial-estimate；Wikipedia: Provençal cuisine |
+| es-basque | editorial-estimate；Wikipedia: Basque cuisine |
+| tr-istanbul | editorial-estimate；Wikipedia: Turkish cuisine |
+| ge-tbilisi | editorial-estimate；Wikipedia: Georgian cuisine |
+| id-padang | editorial-estimate；Wikipedia: Padang cuisine |
+| ph-manila | editorial-estimate；Wikipedia: Filipino cuisine |
+| lk-colombo | editorial-estimate；Wikipedia: Sri Lankan cuisine |
+| ma-marrakech | editorial-estimate；Wikipedia: Moroccan cuisine |
+| sn-dakar | editorial-estimate；Wikipedia: Senegalese cuisine |
+| br-bahia | editorial-estimate；Wikipedia: Bahian cuisine |
+| ar-buenos-aires | editorial-estimate；Wikipedia: Argentine cuisine |
 
 ## 图片
 

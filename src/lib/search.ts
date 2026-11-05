@@ -16,6 +16,18 @@ const COUNTRY_ALIASES: Record<string, string[]> = {
   pe: ['秘鲁', 'Peru', 'Perú'],
   mx: ['墨西哥', 'Mexico', 'México'],
   jp: ['日本', 'Japan'],
+  kr: ['韩国', 'Korea', '한국'],
+  fr: ['法国', 'France'],
+  es: ['西班牙', 'Spain', 'España'],
+  tr: ['土耳其', 'Turkey', 'Türkiye'],
+  ge: ['格鲁吉亚', 'Georgia', 'საქართველო'],
+  id: ['印尼', '印度尼西亚', 'Indonesia'],
+  ph: ['菲律宾', 'Philippines', 'Pilipinas'],
+  lk: ['斯里兰卡', 'Sri Lanka'],
+  ma: ['摩洛哥', 'Morocco', 'Maroc'],
+  sn: ['塞内加尔', 'Senegal', 'Sénégal'],
+  br: ['巴西', 'Brazil', 'Brasil'],
+  ar: ['阿根廷', 'Argentina'],
 };
 
 export type HitKind = 'place' | 'safe' | 'caution' | 'term-safe' | 'term-caution' | 'ingredient';

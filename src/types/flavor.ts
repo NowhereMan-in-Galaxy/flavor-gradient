@@ -119,12 +119,14 @@ export interface CulinaryNode {
   };
   regionGroup:
     | 'china-coastal'
+    | 'china-central-north'
     | 'china-southwest'
     | 'china-northwest-himalaya'
     | 'southeast-asia'
     | 'south-asia'
     | 'central-west-asia'
     | 'east-africa'
+    | 'west-africa'
     | 'mediterranean'
     | 'latin-america'
     | 'east-asia-northeast';

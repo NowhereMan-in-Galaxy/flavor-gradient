@@ -7,6 +7,8 @@ import { AFRICA_NODES } from './africa';
 import { EUROPE_NODES } from './europe';
 import { AMERICAS_NODES } from './americas';
 import { EAST_ASIA_NODES } from './east-asia';
+import { CHINA_EXTENDED_NODES } from './china-extended';
+import { WORLD_EXTENDED_NODES } from './world-extended';
 
 export const NODES: CulinaryNode[] = [
   ...CHINA_NODES,
@@ -17,6 +19,8 @@ export const NODES: CulinaryNode[] = [
   ...EUROPE_NODES,
   ...AMERICAS_NODES,
   ...EAST_ASIA_NODES,
+  ...CHINA_EXTENDED_NODES,
+  ...WORLD_EXTENDED_NODES,
 ];
 
 export const NODE_BY_ID: ReadonlyMap<string, CulinaryNode> = new Map(NODES.map((n) => [n.id, n]));
